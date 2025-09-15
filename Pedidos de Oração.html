@@ -2,104 +2,89 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Pedidos de Oração</title>
+  <title>Pedidos de Oração - Início</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label { font-weight: bold; }
-    textarea, input, select { width: 100%; margin-bottom: 10px; }
-    button { margin: 5px 5px 5px 0; padding: 8px 15px; }
-    ul { margin-top: 20px; }
-    #data-geral { font-style: italic; color: #333; margin-bottom: 15px; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+    }
+    header h1 {
+      margin: 0;
+    }
+    .container {
+      margin: 40px auto;
+      max-width: 700px;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .container img {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+    .container p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    button {
+      display: block;
+      width: 80%;
+      margin: 15px auto;
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-pedido { background: #27ae60; color: white; }
+    .btn-pedido:hover { background: #219150; }
+    .btn-admin { background: #2980b9; color: white; }
+    .btn-admin:hover { background: #216698; }
+    .btn-consulta { background: #8e44ad; color: white; }
+    .btn-consulta:hover { background: #732d91; }
   </style>
 </head>
 <body>
-  <h2>Pedidos de Oração 🙏</h2>
-  <div id="data-geral"></div>
+  <header>
+    <h1>🙏 Pedidos de Oração</h1>
+  </header>
 
-  <form id="formulario">
-    <label for="nome">Nome:</label><br>
-    <input type="text" id="nome" required><br>
+  <div class="container">
+    <img src="https://cdn-icons-png.flaticon.com/512/1995/1995574.png" alt="Pessoa orando">
+    <p>
+      Seja Bem Vindo(a) ao <strong>Pedido de Oração</strong>! <br><br>
+      Nesse espaço você poderá registrar seus pedidos de oração 
+      e também consultar os pedidos que você já realizou anteriormente.
+    </p>
 
-    <label for="sexo">Sexo:</label><br>
-    <select id="sexo" required>
-      <option value="">Selecione...</option>
-      <option value="HOMEM">HOMEM</option>
-      <option value="MULHER">MULHER</option>
-    </select><br>
-
-    <label for="pedido">Pedido de Oração:</label><br>
-    <textarea id="pedido" rows="4" required></textarea><br>
-
-    <button type="submit">Adicionar Pedido</button>
-  </form>
-
-  <h3>Lista de Pedidos</h3>
-  <ul id="lista"></ul>
-
-  <button onclick="copiarPedidos()">📋 Copiar Todos os Pedidos</button>
-  <button onclick="zerarPedidos()">🗑️ Zerar Pedidos</button>
+    <button class="btn-pedido" onclick="location.href='usuario.html'">✍️ Fazer Pedido de Oração</button>
+    <button class="btn-admin" onclick="loginAdmin()">⚙️ Administrar Pedidos de Oração</button>
+    <button class="btn-consulta" onclick="location.href='usuario.html#consulta'">🔍 Consultar Meus Pedidos de Oração</button>
+  </div>
 
   <script>
-    let pedidos = [];
-    let dataAtual = new Date();
-    let dataFormatada = dataAtual.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    function loginAdmin(){
+      let usuario = prompt("Digite o usuário:");
+      let senha = prompt("Digite a senha:");
 
-    document.getElementById("data-geral").textContent = "📅 Data dos pedidos: " + dataFormatada;
+      let userSalvo = localStorage.getItem("adminUser") || "admin";
+      let passSalvo = localStorage.getItem("adminPass") || "admin";
 
-    document.getElementById("formulario").addEventListener("submit", function(e){
-      e.preventDefault();
-
-      let nome = document.getElementById("nome").value.trim();
-      let sexo = document.getElementById("sexo").value;
-      let pedido = document.getElementById("pedido").value.trim();
-
-      if(nome && pedido && sexo){
-        pedidos.push({nome, sexo, pedido});
-
-        let li = document.createElement("li");
-        li.textContent = "[" + sexo + "] " + nome + ": " + pedido;
-        document.getElementById("lista").appendChild(li);
-
-        document.getElementById("formulario").reset();
-      }
-    });
-
-    function copiarPedidos(){
-      if(pedidos.length === 0){
-        alert("Nenhum pedido adicionado ainda.");
-        return;
-      }
-
-      let homens = pedidos.filter(p => p.sexo === "HOMEM");
-      let mulheres = pedidos.filter(p => p.sexo === "MULHER");
-
-      let texto = "📖 Lista de Pedidos de Oração (" + dataFormatada + ")\n\n";
-
-      if(homens.length > 0){
-        texto += "👨 HOMENS:\n";
-        homens.forEach((p, i) => {
-          texto += (i+1) + ". " + p.nome + " - " + p.pedido + "\n";
-        });
-        texto += "\n";
-      }
-
-      if(mulheres.length > 0){
-        texto += "👩 MULHERES:\n";
-        mulheres.forEach((p, i) => {
-          texto += (i+1) + ". " + p.nome + " - " + p.pedido + "\n";
-        });
-      }
-
-      navigator.clipboard.writeText(texto).then(() => {
-        alert("Todos os pedidos foram copiados! Agora é só colar no WhatsApp ✅");
-      });
-    }
-
-    function zerarPedidos(){
-      if(confirm("Tem certeza que deseja apagar todos os pedidos?")){
-        pedidos = [];
-        document.getElementById("lista").innerHTML = "";
-        alert("Todos os pedidos foram zerados.");
+      if(usuario === userSalvo && senha === passSalvo){
+        alert("✅ Acesso liberado!");
+        window.location.href = "admin.html";
+      } else {
+        alert("❌ Usuário ou senha incorretos!");
       }
     }
   </script>
