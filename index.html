@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos de Oração</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label { font-weight: bold; }
+    textarea, input, select { width: 100%; margin-bottom: 10px; }
+    button { margin: 5px 5px 5px 0; padding: 8px 15px; }
+    ul { margin-top: 20px; }
+    #data-geral { font-style: italic; color: #333; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+  <h2>Pedidos de Oração 🙏</h2>
+  <div id="data-geral"></div>
+
+  <form id="formulario">
+    <label for="nome">Nome:</label><br>
+    <input type="text" id="nome" required><br>
+
+    <label for="sexo">Sexo:</label><br>
+    <select id="sexo" required>
+      <option value="">Selecione...</option>
+      <option value="HOMEM">HOMEM</option>
+      <option value="MULHER">MULHER</option>
+    </select><br>
+
+    <label for="pedido">Pedido de Oração:</label><br>
+    <textarea id="pedido" rows="4" required></textarea><br>
+
+    <button type="submit">Adicionar Pedido</button>
+  </form>
+
+  <h3>Lista de Pedidos</h3>
+  <ul id="lista"></ul>
+
+  <button onclick="copiarPedidos()">📋 Copiar Todos os Pedidos</button>
+  <button onclick="zerarPedidos()">🗑️ Zerar Pedidos</button>
+
+  <script>
+    let pedidos = [];
+    let dataAtual = new Date();
+    let dataFormatada = dataAtual.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+    document.getElementById("data-geral").textContent = "📅 Data dos pedidos: " + dataFormatada;
+
+    document.getElementById("formulario").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      let nome = document.getElementById("nome").value.trim();
+      let sexo = document.getElementById("sexo").value;
+      let pedido = document.getElementById("pedido").value.trim();
+
+      if(nome && pedido && sexo){
+        pedidos.push({nome, sexo, pedido});
+
+        let li = document.createElement("li");
+        li.textContent = "[" + sexo + "] " + nome + ": " + pedido;
+        document.getElementById("lista").appendChild(li);
+
+        document.getElementById("formulario").reset();
+      }
+    });
+
+    function copiarPedidos(){
+      if(pedidos.length === 0){
+        alert("Nenhum pedido adicionado ainda.");
+        return;
+      }
+
+      let homens = pedidos.filter(p => p.sexo === "HOMEM");
+      let mulheres = pedidos.filter(p => p.sexo === "MULHER");
+
+      let texto = "📖 Lista de Pedidos de Oração (" + dataFormatada + ")\n\n";
+
+      if(homens.length > 0){
+        texto += "👨 HOMENS:\n";
+        homens.forEach((p, i) => {
+          texto += (i+1) + ". " + p.nome + " - " + p.pedido + "\n";
+        });
+        texto += "\n";
+      }
+
+      if(mulheres.length > 0){
+        texto += "👩 MULHERES:\n";
+        mulheres.forEach((p, i) => {
+          texto += (i+1) + ". " + p.nome + " - " + p.pedido + "\n";
+        });
+      }
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Todos os pedidos foram copiados! Agora é só colar no WhatsApp ✅");
+      });
+    }
+
+    function zerarPedidos(){
+      if(confirm("Tem certeza que deseja apagar todos os pedidos?")){
+        pedidos = [];
+        document.getElementById("lista").innerHTML = "";
+        alert("Todos os pedidos foram zerados.");
+      }
+    }
+  </script>
+</body>
+</html>
