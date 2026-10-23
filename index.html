@@ -1,2755 +1,381 @@
-<html lang="pt-BR"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal de Intercessão — Registro de Pedidos de Oração</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Início — Portal de Pedidos de Oração</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #FAF8F5;
-      color: #1C1917;
-    }
-    .font-serif-display {
-      font-family: 'Playfair Display', serif;
-    }
-    .view-section {
-      display: none;
-    }
-    .view-section.active {
-      display: block;
-      animation: fadeIn 0.25s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #F5F2EB;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #D6D3D1;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #A8A29E;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/styles.css" />
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-950">
+<body class="min-h-screen flex flex-col justify-between pb-16 sm:pb-0 selection:bg-amber-200 selection:text-amber-950">
 
-  <!-- TOP NAVIGATION BAR -->
+  <!-- CABEÇALHO SUPERIOR -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-stone-200 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Brand / Logo -->
-      <div class="flex items-center gap-3 cursor-pointer" id="brandLogoBtn">
-        <div class="w-10 h-10 rounded-xl bg-amber-700 text-white flex items-center justify-center shadow-sm font-serif-display text-xl font-bold">
+    <div class="max-w-6xl mx-auto px-3.5 sm:px-6 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 cursor-pointer min-w-0" id="brandLogoBtn">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center shadow-sm text-lg font-bold flex-shrink-0">
           🙏
         </div>
-        <div>
-          <h1 class="font-serif-display font-bold text-lg sm:text-xl text-stone-900 leading-tight">Portal de Intercessão</h1>
-          <p class="text-xs text-stone-500 flex items-center gap-1.5">
-            <span id="dbStatusBadge" class="inline-block w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-            <span id="dbStatusText">Erro Supabase (Clique p/ Corrigir)</span>
+        <div class="min-w-0">
+          <h1 class="font-serif-display font-bold text-base sm:text-xl text-stone-900 truncate leading-tight">Portal de Intercessão</h1>
+          <p class="text-[11px] text-stone-500 flex items-center gap-1.5 truncate">
+            <span id="dbStatusBadge" class="inline-block w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span id="dbStatusText" class="truncate">Conectando ao Supabase...</span>
           </p>
         </div>
       </div>
 
-      <!-- Right Controls -->
-      <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Supabase Config Button -->
-        <button type="button" id="openSupabaseModalBtn" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-300 text-stone-700 hover:bg-stone-100 transition flex items-center gap-1.5" title="Configurar conexão com Supabase e ver SQL">
-          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-          <span class="hidden sm:inline">Supabase / SQL</span>
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <!-- Botão de Configuração do Supabase (EXCLUSIVO PARA ADMINISTRADORES LOGADOS) -->
+        <button type="button" id="openSupabaseModalBtn" class="hidden px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition items-center gap-1.5" title="Configuração do Supabase (Apenas Administradores)">
+          <svg class="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          <span class="hidden md:inline">Supabase (Admin)</span>
         </button>
 
-        <!-- Admin Notification Bell (Only visible when admin is logged in) -->
-        <button type="button" id="adminNotifBtn" class="hidden relative p-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition" title="Solicitações de Reset de Senha">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+        <!-- Sino de Notificações de Reset de Senha (EXCLUSIVO PARA ADMINISTRADORES) -->
+        <button type="button" id="adminNotifBtn" class="hidden relative p-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition" title="Solicitações de Reset de Senha">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span id="adminNotifCount" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
         </button>
 
-        <!-- Top-Right Profile Button (Required by spec on Logged-in Home) -->
-        <div id="loggedUserHeader" class="hidden items-center gap-2">
-          <button type="button" id="topProfileBtn" class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
-            <img id="headerUserAvatar" src="" alt="Avatar" class="w-7 h-7 rounded-full object-cover border border-amber-400">
-            <div class="text-left">
-              <div id="headerUserName" class="text-xs font-semibold text-stone-800 leading-none">Meu Perfil</div>
-              <div id="headerUserRole" class="text-[10px] text-amber-800 font-medium">Membro</div>
+        <!-- Perfil do Usuário Logado -->
+        <div id="loggedUserHeader" class="hidden items-center gap-1.5 sm:gap-2">
+          <button type="button" id="topProfileBtn" class="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
+            <img id="headerUserAvatar" src="" alt="Avatar" class="w-7 h-7 rounded-full object-cover border border-amber-500 flex-shrink-0" />
+            <div class="text-left hidden sm:block max-w-[140px]">
+              <div id="headerUserName" class="text-xs font-semibold text-stone-800 truncate leading-none">Meu Perfil</div>
+              <div id="headerUserRole" class="text-[10px] text-amber-800 font-semibold mt-0.5">Membro</div>
             </div>
           </button>
           <button type="button" id="logoutBtn" class="p-2 rounded-xl text-stone-500 hover:text-red-600 hover:bg-red-50 transition" title="Sair da conta">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
-
+  <!-- CONTEÚDO DA PÁGINA (home) -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8">
     <!-- ==========================================
-         1. PÁGINA INICIAL (PUBLIC LANDING PAGE)
+         ROTA 1: PÁGINA PRINCIPAL (/)
+         https://leoguerramaia.github.io/Pedidodeoracao/
          ========================================== -->
     <section id="view-landing" class="view-section active">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-stone-200/80">
-        <div class="lg:col-span-7 space-y-6">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/80 text-amber-900 text-xs font-semibold">
-            <span>✨ Comunidade de Fé &amp; Intercessão</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center bg-white rounded-3xl p-5 sm:p-8 lg:p-10 shadow-sm border border-stone-200/90">
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold tracking-wide">
+            <span>🕊️ Comunidade Cristã de Fé &amp; Intercessão</span>
           </div>
-          <h2 class="font-serif-display text-3xl sm:text-5xl font-bold text-stone-900 leading-tight">
+          <h2 class="font-serif-display text-2xl sm:text-4xl lg:text-5xl font-bold text-stone-900 leading-tight">
             Compartilhe seus pedidos de oração e interceda pelos irmãos.
           </h2>
-          <p class="text-stone-600 text-base sm:text-lg leading-relaxed">
-            Este portal tem como objetivo <strong>registrar e acompanhar pedidos de oração</strong> da nossa comunidade. Conecte-se com outros membros, compartilhe suas causas, acompanhe os pedidos da semana ou do mês e fortaleça a corrente de oração.
+          <p class="text-stone-600 text-sm sm:text-base lg:text-lg leading-relaxed">
+            Este portal tem como objetivo <strong>registrar e acompanhar pedidos de oração</strong> da nossa comunidade online. Faça login, crie seu cadastro de membro ou envie diretamente seu pedido como convidado.
           </p>
 
-          <div class="flex flex-wrap items-center gap-4 pt-2">
-            <button type="button" id="goToLoginBtn" class="px-6 py-3.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold shadow-sm transition flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+          <!-- 3 Botões Principais da Página Inicial -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <button type="button" data-nav-route="login" class="w-full px-5 py-3.5 rounded-2xl bg-amber-700 hover:bg-amber-800 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2.5 min-h-[48px]">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
               <span>Fazer Login</span>
             </button>
-            <button type="button" id="goToRegisterBtn" class="px-6 py-3.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-semibold shadow-sm transition flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+            <button type="button" data-nav-route="cadastro" class="w-full px-5 py-3.5 rounded-2xl bg-stone-900 hover:bg-stone-800 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2.5 min-h-[48px]">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
               <span>Criar Cadastro</span>
+            </button>
+            <button type="button" data-nav-route="pedidoconvidado" class="sm:col-span-2 w-full px-5 py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2.5 min-h-[50px] border border-emerald-600">
+              <span class="text-lg">🙏</span>
+              <span>Fazer pedido de oração (Convidado)</span>
             </button>
           </div>
 
-          <!-- Quick Demo / Admin Credentials Card -->
-          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 text-xs text-stone-600 space-y-1.5">
-            <div class="font-semibold text-stone-800 flex items-center gap-1.5">
-              <span>🔑 Acesso Inicial de Administrador (conforme especificação):</span>
-            </div>
-            <p>Usuário / E-mail: <code class="px-1.5 py-0.5 bg-white border rounded text-amber-900 font-mono">admin</code> | Senha inicial: <code class="px-1.5 py-0.5 bg-white border rounded text-amber-900 font-mono">admin</code> (solicita alteração no primeiro acesso).</p>
+          <div class="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-500 border-t border-stone-100">
+            <span>📖 <em>"Orai uns pelos outros, para serdes curados."</em> (Tiago 5:16)</span>
+            <button type="button" data-nav-route="acompanharpedidos" class="text-amber-800 hover:text-amber-950 font-semibold underline">
+              Ver Mural de Pedidos →
+            </button>
           </div>
         </div>
 
         <div class="lg:col-span-5">
-          <div class="relative rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-amber-50">
-            <img src="assets/hero-prayer.jpg" alt="Ilustração de Oração e Comunhão" class="w-full h-auto object-cover">
-            <div class="p-4 bg-gradient-to-t from-stone-900/80 via-stone-900/40 to-transparent absolute bottom-0 inset-x-0 text-white">
-              <p class="text-xs italic opacity-95">"Orai uns pelos outros, para que sareis; a oração feita por um justo pode muito em seus efeitos." — Tiago 5:16</p>
+          <div class="relative rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-amber-950 aspect-[4/3]">
+            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='480' viewBox='0 0 640 480'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23451a03'/%3E%3Cstop offset='55%25' stop-color='%2378350f'/%3E%3Cstop offset='100%25' stop-color='%23b45309'/%3E%3C/linearGradient%3E%3CradialGradient id='glow' cx='50%25' cy='42%25' r='45%25'%3E%3Cstop offset='0%25' stop-color='%23fde68a' stop-opacity='0.35'/%3E%3Cstop offset='100%25' stop-color='%23fde68a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='640' height='480' fill='url(%23bg)'/%3E%3Ccircle cx='320' cy='200' r='210' fill='url(%23glow)'/%3E%3Ccircle cx='320' cy='190' r='76' fill='%23fef3c7' fill-opacity='0.14' stroke='%23fcd34d' stroke-opacity='0.35' stroke-width='2'/%3E%3Ctext x='320' y='212' text-anchor='middle' font-size='68'%3E%F0%9F%99%8F%3C/text%3E%3Ctext x='320' y='318' text-anchor='middle' fill='%23fffbeb' font-family='Georgia, serif' font-size='26' font-weight='bold'%3EComunidade de Intercess%C3%A3o%3C/text%3E%3Ctext x='320' y='350' text-anchor='middle' fill='%23fde68a' font-family='sans-serif' font-size='14'%3EUnidos em f%C3%A9, comunh%C3%A3o e ora%C3%A7%C3%A3o uns pelos outros%3C/text%3E%3C/svg%3E" alt="Comunidade em Oração" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent flex flex-col justify-end p-5 text-white">
+              <span class="text-[11px] uppercase tracking-wider text-amber-300 font-bold">Corrente de Intercessão Online</span>
+              <p class="text-sm sm:text-base font-serif-display font-semibold mt-0.5">Pedidos sincronizados em tempo real na nuvem para toda a igreja.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Feature Highlights -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
-        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
-          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold mb-3">📖</div>
-          <h3 class="font-bold text-stone-900 mb-1">Registro de Pedidos</h3>
-          <p class="text-sm text-stone-600">Registre seus motivos de oração com identificação automática de nome, sobrenome, data e hora.</p>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold mb-3">💬</div>
-          <h3 class="font-bold text-stone-900 mb-1">Filtros &amp; Exportação WhatsApp</h3>
-          <p class="text-sm text-stone-600">Filtre pedidos da semana, do mês, masculinos ou femininos e exporte a lista formatada direto para o WhatsApp.</p>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
-          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold mb-3">📍</div>
-          <h3 class="font-bold text-stone-900 mb-1">Agenda de Contatos Integrada</h3>
-          <p class="text-sm text-stone-600">Acesse o diretório de irmãos com atalhos diretos para WhatsApp, E-mail e localização via Google Maps ou Waze.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         2. PÁGINA DE LOGIN
-         ========================================== -->
-    <section id="view-login" class="view-section">
-      <div class="max-w-md mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex items-center justify-between mb-6">
+      <!-- Destaques Mobile-First -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg font-bold flex-shrink-0">🙏</div>
           <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Entrar na Conta</h2>
-            <p class="text-xs text-stone-500 mt-1">Use seu e-mail cadastrado (ou <code class="font-mono text-amber-800">admin</code>) e sua senha</p>
+            <h3 class="font-bold text-stone-900 text-sm mb-1">Membros &amp; Convidados</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">Envie pedidos com sua conta cadastrada ou rapidamente como convidado informando Nome e Sobrenome.</p>
           </div>
-          <button type="button" id="backFromLoginBtn" class="text-xs text-stone-500 hover:text-stone-800 underline">Voltar ao início</button>
         </div>
-
-        <form id="loginForm" class="space-y-4">
+        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-bold flex-shrink-0">📲</div>
           <div>
-            <label for="loginIdentifier" class="block text-xs font-semibold text-stone-700 mb-1">E-mail ou Usuário Admin</label>
-            <input type="text" id="loginIdentifier" required="" placeholder="seu@email.com ou admin" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
+            <h3 class="font-bold text-stone-900 text-sm mb-1">Exportação WhatsApp</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">Filtre pedidos da semana, mês ou sexo e exporte uma lista elegante com emojis para o WhatsApp.</p>
           </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-lg font-bold flex-shrink-0">📍</div>
           <div>
-            <label for="loginPassword" class="block text-xs font-semibold text-stone-700 mb-1">Senha</label>
-            <input type="password" id="loginPassword" required="" placeholder="Digite sua senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-          </div>
-
-          <div class="flex items-center justify-between pt-1">
-            <button type="button" id="forgotPasswordBtn" class="text-xs font-semibold text-amber-800 hover:text-amber-950 underline">
-              Esqueci minha senha
-            </button>
-            <button type="button" id="switchToRegisterBtn" class="text-xs text-stone-600 hover:text-stone-900">
-              Não tem conta? <strong>Cadastre-se</strong>
-            </button>
-          </div>
-
-          <button type="submit" class="w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition">
-            Acessar Área Logada
-          </button>
-        </form>
-
-        <!-- Quick Fill Helper for testing -->
-        <div class="mt-6 pt-5 border-t border-stone-200">
-          <p class="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Acesso Rápido para Teste:</p>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" id="quickLoginAdminBtn" class="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-medium transition">
-              Preencher Admin (admin)
-            </button>
-            <button type="button" id="quickLoginMemberBtn" class="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium transition">
-              Preencher Membro Exemplo
-            </button>
+            <h3 class="font-bold text-stone-900 text-sm mb-1">Contatos &amp; Rotas</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">Conecte-se com os irmãos via WhatsApp, E-mail ou abra o endereço no Google Maps e Waze.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ==========================================
-         3. PÁGINA DE CADASTRO (SIGN UP)
-         ========================================== -->
-    <section id="view-register" class="view-section">
-      <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Cadastro de Membro</h2>
-            <p class="text-xs text-stone-500 mt-1">Preencha seus dados para registrar e acompanhar pedidos de oração.</p>
-          </div>
-          <button type="button" id="backFromRegisterBtn" class="text-xs text-stone-500 hover:text-stone-800 underline">Voltar ao início</button>
-        </div>
-
-        <form id="registerForm" class="space-y-5">
-          <!-- Foto de Perfil (Galeria ou Câmera) -->
-          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row items-center gap-4">
-            <img id="regPhotoPreview" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%22120%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2260%22%20fill%3D%22%2378716C%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20sans-serif%22%20font-size%3D%2242%22%20font-weight%3D%22700%22%3ENV%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Prévia da Foto" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 bg-white shadow-sm">
-            <div class="flex-1 text-center sm:text-left space-y-2">
-              <div class="text-xs font-semibold text-stone-800">Foto de Perfil</div>
-              <p class="text-[11px] text-stone-500">Carregue uma imagem da sua galeria ou tire uma foto diretamente pela câmera.</p>
-              <div class="flex flex-wrap justify-center sm:justify-start gap-2">
-                <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition inline-flex items-center gap-1.5">
-                  <span>🖼️ Escolher da Galeria</span>
-                  <input type="file" id="regPhotoGalleryInput" accept="image/*" class="hidden">
-                </label>
-                <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition inline-flex items-center gap-1.5">
-                  <span>📷 Tirar pelo Celular / Câmera</span>
-                  <input type="file" id="regPhotoCameraInput" accept="image/*" capture="user" class="hidden">
-                </label>
-                <button type="button" id="openWebcamModalRegBtn" class="px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-xs font-medium text-amber-900 transition">
-                  🎥 Usar Webcam
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Nome, Sobrenome, Sexo -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label for="regNome" class="block text-xs font-semibold text-stone-700 mb-1">Nome *</label>
-              <input type="text" id="regNome" required="" placeholder="Ex.: João" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-            <div>
-              <label for="regSobrenome" class="block text-xs font-semibold text-stone-700 mb-1">Sobrenome *</label>
-              <input type="text" id="regSobrenome" required="" placeholder="Ex.: Silva" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-            <div>
-              <label for="regSexo" class="block text-xs font-semibold text-stone-700 mb-1">Sexo *</label>
-              <select id="regSexo" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
-                <option value="">Selecione...</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Telefone & E-mail -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="regTelefone" class="block text-xs font-semibold text-stone-700 mb-1">Telefone (WhatsApp) *</label>
-              <input type="tel" id="regTelefone" required="" placeholder="(11) 99999-9999" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-            <div>
-              <label for="regEmail" class="block text-xs font-semibold text-stone-700 mb-1">E-mail *</label>
-              <input type="email" id="regEmail" required="" placeholder="nome@email.com" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-          </div>
-
-          <!-- Endereço com busca automática de CEP -->
-          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-stone-800 uppercase tracking-wider">Endereço (Busca Automática por CEP)</span>
-              <span id="regCepStatus" class="text-xs text-amber-800 font-medium">Digite os 8 dígitos do CEP</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label for="regCep" class="block text-xs font-semibold text-stone-700 mb-1">CEP *</label>
-                <div class="flex gap-1.5">
-                  <input type="text" id="regCep" required="" maxlength="9" placeholder="01001-000" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-                  <button type="button" id="regSearchCepBtn" class="px-3 py-2 rounded-xl bg-amber-700 text-white text-xs font-semibold hover:bg-amber-800 transition">Buscar</button>
-                </div>
-              </div>
-              <div class="sm:col-span-2">
-                <label for="regRua" class="block text-xs font-semibold text-stone-700 mb-1">Rua / Logradouro *</label>
-                <input type="text" id="regRua" required="" placeholder="Preenchido automaticamente pelo CEP" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label for="regBairro" class="block text-xs font-semibold text-stone-700 mb-1">Bairro *</label>
-                <input type="text" id="regBairro" required="" placeholder="Bairro" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-              <div>
-                <label for="regCidade" class="block text-xs font-semibold text-stone-700 mb-1">Cidade *</label>
-                <input type="text" id="regCidade" required="" placeholder="Cidade" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-              <div>
-                <label for="regEstado" class="block text-xs font-semibold text-stone-700 mb-1">Estado (UF) *</label>
-                <input type="text" id="regEstado" required="" maxlength="2" placeholder="UF" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label for="regNumero" class="block text-xs font-semibold text-stone-700 mb-1">Número *</label>
-                <input type="text" id="regNumero" required="" placeholder="Digite o número da residência" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-              <div>
-                <label for="regComplemento" class="block text-xs font-semibold text-stone-700 mb-1">Complemento</label>
-                <input type="text" id="regComplemento" placeholder="Apto, Bloco, Casa 2 (opcional)" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-              </div>
-            </div>
-          </div>
-
-          <!-- Senha & Confirmação da Senha -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="regSenha" class="block text-xs font-semibold text-stone-700 mb-1">Senha *</label>
-              <input type="password" id="regSenha" required="" placeholder="Crie uma senha" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-            <div>
-              <label for="regConfirmaSenha" class="block text-xs font-semibold text-stone-700 mb-1">Confirmação da Senha *</label>
-              <input type="password" id="regConfirmaSenha" required="" placeholder="Repita a senha" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between pt-2">
-            <button type="button" id="switchToLoginFromRegBtn" class="text-xs text-stone-600 hover:text-stone-900">
-              Já possui conta? <strong>Fazer Login</strong>
-            </button>
-            <button type="submit" class="px-8 py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition">
-              Concluir Cadastro
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         4. PÁGINA INICIAL LOGADA (DASHBOARD)
+         PÁGINA INICIAL LOGADA (PAINEL NA ROTA PRINCIPAL)
          ========================================== -->
     <section id="view-dashboard" class="view-section">
-      <!-- Top Bar with Top-Right Profile Button Explicitly Highlighted inside Page as well -->
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span id="dashRoleBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 mb-2">Área Logada</span>
-          <h2 id="dashWelcomeTitle" class="font-serif-display text-2xl sm:text-3xl font-bold text-stone-900">Bem-vindo(a)!</h2>
-          <p class="text-sm text-stone-600 mt-1">Escolha uma das opções abaixo para acessar a comunidade ou gerenciar seus pedidos de oração.</p>
+      <div class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-stone-200 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <img id="dashHeroAvatar" src="" alt="Avatar" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-amber-500 shadow-sm flex-shrink-0 bg-stone-100" />
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span id="dashRoleBadge" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900">Área Logada</span>
+            </div>
+            <h2 id="dashWelcomeTitle" class="font-serif-display text-xl sm:text-3xl font-bold text-stone-900">Bem-vindo(a)!</h2>
+            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Gerencie seu perfil, acesse a agenda da comunidade ou acompanhe os pedidos de oração.</p>
+          </div>
         </div>
 
-        <!-- Botão 1: Canto Superior Direito — Perfil do Usuário -->
-        <div class="self-start sm:self-auto">
-          <button type="button" id="dashProfileCardBtn" class="px-4 py-2.5 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold shadow-sm transition flex items-center gap-2.5">
-            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <div class="flex flex-wrap items-center gap-2 self-stretch sm:self-auto">
+          <button type="button" id="dashProfileCardBtn" class="flex-1 sm:flex-initial justify-center px-4 py-3 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold shadow-sm transition flex items-center gap-2 min-h-[44px]">
+            <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             <span>Meu Perfil (Atualizar Dados)</span>
           </button>
         </div>
       </div>
 
-      <!-- Admin Password Reset Requests Alert Banner (Visible only to Admins when requests exist) -->
-      <div id="adminResetBanner" class="hidden mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <!-- Alerta Admin: Solicitações de Reset de Senha -->
+      <div id="adminResetBanner" class="hidden mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-3">
           <span class="text-2xl">🔔</span>
           <div>
-            <h3 class="text-sm font-bold text-amber-950">Aviso de Administrador: Solicitações de Reset de Senha</h3>
-            <p id="adminResetBannerText" class="text-xs text-amber-900">Existem usuários solicitando redefinição de senha para 1234.</p>
+            <h3 class="text-xs sm:text-sm font-bold text-amber-950">Solicitações Pendentes de Reset de Senha</h3>
+            <p id="adminResetBannerText" class="text-xs text-amber-900">Existem usuários aguardando aprovação de administrador para redefinir a senha para 1234.</p>
           </div>
         </div>
-        <button type="button" id="openAdminResetsModalBtn" class="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold transition">
-          Ver Solicitações e Resetar
+        <button type="button" id="openAdminResetsModalBtn" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold transition text-center">
+          Aprovar Resets Agora
         </button>
       </div>
 
-      <!-- Os 3 Botões Centrais (Totalizando os 4 botões da Página Inicial Logada) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Botão 2: Contatos -->
-        <button type="button" id="navToContactsBtn" class="text-left group bg-white hover:bg-amber-50/40 p-6 sm:p-8 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
+      <!-- Os 3 Botões Centrais -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <button type="button" data-nav-route="contatos" class="text-left group bg-white hover:bg-amber-50/40 p-5 sm:p-7 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
-              👥
-            </div>
-            <h3 class="font-serif-display text-xl font-bold text-stone-900 mb-2">Contatos</h3>
-            <p class="text-sm text-stone-600 leading-relaxed">
-              Acesse a lista de todas as pessoas cadastradas no site com foto, WhatsApp, e-mail e endereço no Google Maps ou Waze.
-            </p>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center text-2xl mb-4 group-hover:scale-105 transition">👥</div>
+            <h3 class="font-serif-display text-lg sm:text-xl font-bold text-stone-900 mb-1.5">Contatos</h3>
+            <p class="text-xs sm:text-sm text-stone-600 leading-relaxed">Lista de todas as pessoas cadastradas com Foto, Nome, WhatsApp direto, E-mail e localização no Google Maps ou Waze.</p>
           </div>
-          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
+          <div class="mt-5 pt-3.5 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
             <span id="dashContactsCount">Ver pessoas cadastradas</span>
-            <span>Acessar →</span>
+            <span>Abrir /contatos →</span>
           </div>
         </button>
 
-        <!-- Botão 3: Registrar Pedido de Oração -->
-        <button type="button" id="navToNewPrayerBtn" class="text-left group bg-white hover:bg-amber-50/40 p-6 sm:p-8 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
+        <button type="button" data-nav-route="pedidooracao" class="text-left group bg-white hover:bg-amber-50/40 p-5 sm:p-7 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
-              🙏
-            </div>
-            <h3 class="font-serif-display text-xl font-bold text-stone-900 mb-2">Registrar Pedido de Oração</h3>
-            <p class="text-sm text-stone-600 leading-relaxed">
-              Escreva seu pedido de oração. Ele será salvo automaticamente com seu nome, sobrenome, data e hora do registro.
-            </p>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mb-4 group-hover:scale-105 transition">🙏</div>
+            <h3 class="font-serif-display text-lg sm:text-xl font-bold text-stone-900 mb-1.5">Registrar Pedido de Oração</h3>
+            <p class="text-xs sm:text-sm text-stone-600 leading-relaxed">Registre seu motivo de oração. Seu nome, sobrenome, data e hora são gravados automaticamente no banco online.</p>
           </div>
-          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
-            <span>Novo registro</span>
-            <span>Registrar agora →</span>
+          <div class="mt-5 pt-3.5 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
+            <span>Novo pedido</span>
+            <span>Abrir /pedidooracao →</span>
           </div>
         </button>
 
-        <!-- Botão 4: Acompanhar Pedidos de Oração -->
-        <button type="button" id="navToPrayerListBtn" class="text-left group bg-white hover:bg-amber-50/40 p-6 sm:p-8 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
+        <button type="button" data-nav-route="acompanharpedidos" class="text-left group bg-white hover:bg-amber-50/40 p-5 sm:p-7 rounded-3xl border border-stone-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
-              📋
-            </div>
-            <h3 class="font-serif-display text-xl font-bold text-stone-900 mb-2">Acompanhar Pedidos de Oração</h3>
-            <p class="text-sm text-stone-600 leading-relaxed">
-              Visualize todos os pedidos registrados, aplique filtros combinados (semana, mês, sexo) e exporte para o WhatsApp.
-            </p>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl mb-4 group-hover:scale-105 transition">📋</div>
+            <h3 class="font-serif-display text-lg sm:text-xl font-bold text-stone-900 mb-1.5">Acompanhar Pedidos de Oração</h3>
+            <p class="text-xs sm:text-sm text-stone-600 leading-relaxed">Visualize todos os pedidos registrados, filtre por semana, mês ou sexo e exporte com leiaute formatado para o WhatsApp.</p>
           </div>
-          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
+          <div class="mt-5 pt-3.5 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800">
             <span id="dashPrayersCount">Ver mural de oração</span>
-            <span>Acompanhar →</span>
+            <span>Abrir /acompanharpedidos →</span>
           </div>
         </button>
       </div>
     </section>
 
     <!-- ==========================================
-         5. PÁGINA DO PERFIL DO USUÁRIO
+         PÁGINA DO PERFIL DO USUÁRIO LOGADO
          ========================================== -->
     <section id="view-profile" class="view-section">
-      <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex items-center justify-between mb-6">
+      <div class="max-w-2xl mx-auto bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-stone-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Meu Perfil</h2>
-            <p class="text-xs text-stone-500 mt-1">Atualize seus dados cadastrais, foto, endereço ou senha de acesso.</p>
+            <h2 class="font-serif-display text-xl sm:text-2xl font-bold text-stone-900">Meu Perfil</h2>
+            <p class="text-xs text-stone-500 mt-0.5">Atualize seus dados cadastrais, foto de perfil, endereço ou senha.</p>
           </div>
-          <button type="button" id="backFromProfileBtn" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
-            ← Voltar à Página Inicial Logada
+          <button type="button" data-nav-route="home" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
+            ← Voltar ao Painel
           </button>
         </div>
 
-        <form id="profileForm" class="space-y-5">
+        <form id="profileForm" class="space-y-4">
           <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row items-center gap-4">
-            <img id="profPhotoPreview" src="" alt="Foto do Perfil" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 bg-white shadow-sm">
+            <img id="profPhotoPreview" src="" alt="Foto do Perfil" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 bg-white shadow-sm" />
             <div class="flex-1 text-center sm:text-left space-y-2">
               <div class="text-xs font-semibold text-stone-800">Atualizar Foto de Perfil</div>
               <div class="flex flex-wrap justify-center sm:justify-start gap-2">
-                <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition">
+                <label class="cursor-pointer px-3 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition">
                   🖼️ Galeria
-                  <input type="file" id="profPhotoGalleryInput" accept="image/*" class="hidden">
+                  <input type="file" id="profPhotoGalleryInput" accept="image/*" class="hidden" />
                 </label>
-                <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition">
+                <label class="cursor-pointer px-3 py-2 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-medium text-stone-700 transition">
                   📷 Câmera Celular
-                  <input type="file" id="profPhotoCameraInput" accept="image/*" capture="user" class="hidden">
+                  <input type="file" id="profPhotoCameraInput" accept="image/*" capture="user" class="hidden" />
                 </label>
-                <button type="button" id="openWebcamModalProfBtn" class="px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-xs font-medium text-amber-900 transition">
+                <button type="button" id="openWebcamModalProfBtn" class="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 hover:bg-amber-100 text-xs font-medium text-amber-900 transition">
                   🎥 Webcam
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <div>
               <label for="profNome" class="block text-xs font-semibold text-stone-700 mb-1">Nome *</label>
-              <input type="text" id="profNome" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <input type="text" id="profNome" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
             <div>
               <label for="profSobrenome" class="block text-xs font-semibold text-stone-700 mb-1">Sobrenome *</label>
-              <input type="text" id="profSobrenome" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <input type="text" id="profSobrenome" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
             <div>
               <label for="profSexo" class="block text-xs font-semibold text-stone-700 mb-1">Sexo *</label>
-              <select id="profSexo" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm bg-white">
+              <select id="profSexo" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white">
                 <option value="Masculino">Masculino</option>
                 <option value="Feminino">Feminino</option>
               </select>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label for="profTelefone" class="block text-xs font-semibold text-stone-700 mb-1">Telefone (WhatsApp) *</label>
-              <input type="tel" id="profTelefone" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <input type="tel" id="profTelefone" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
             <div>
               <label for="profEmail" class="block text-xs font-semibold text-stone-700 mb-1">E-mail *</label>
-              <input type="email" id="profEmail" required="" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <input type="email" id="profEmail" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
           </div>
 
-          <!-- Endereço -->
           <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-stone-800 uppercase tracking-wider">Endereço</span>
-              <span id="profCepStatus" class="text-xs text-amber-800 font-medium">Digite o CEP para atualizar</span>
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <span class="text-xs font-bold text-stone-800 uppercase tracking-wider">Endereço (ViaCEP Automático)</span>
+              <span id="profCepStatus" class="text-xs text-amber-800 font-medium">Digite o CEP para buscar</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label for="profCep" class="block text-xs font-semibold text-stone-700 mb-1">CEP *</label>
                 <div class="flex gap-1.5">
-                  <input type="text" id="profCep" required="" maxlength="9" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
+                  <input type="text" id="profCep" required maxlength="9" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm bg-white" />
                   <button type="button" id="profSearchCepBtn" class="px-3 py-2 rounded-xl bg-amber-700 text-white text-xs font-semibold hover:bg-amber-800 transition">Buscar</button>
                 </div>
               </div>
               <div class="sm:col-span-2">
                 <label for="profRua" class="block text-xs font-semibold text-stone-700 mb-1">Rua *</label>
-                <input type="text" id="profRua" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm">
+                <input type="text" id="profRua" required class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm" />
               </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label for="profBairro" class="block text-xs font-semibold text-stone-700 mb-1">Bairro *</label>
-                <input type="text" id="profBairro" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm">
+                <input type="text" id="profBairro" required class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm" />
               </div>
               <div>
                 <label for="profCidade" class="block text-xs font-semibold text-stone-700 mb-1">Cidade *</label>
-                <input type="text" id="profCidade" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm">
+                <input type="text" id="profCidade" required class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm" />
               </div>
               <div>
                 <label for="profEstado" class="block text-xs font-semibold text-stone-700 mb-1">Estado (UF) *</label>
-                <input type="text" id="profEstado" required="" maxlength="2" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm uppercase">
+                <input type="text" id="profEstado" required maxlength="2" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm uppercase" />
               </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label for="profNumero" class="block text-xs font-semibold text-stone-700 mb-1">Número *</label>
-                <input type="text" id="profNumero" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm">
+                <input type="text" id="profNumero" required class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm" />
               </div>
               <div>
                 <label for="profComplemento" class="block text-xs font-semibold text-stone-700 mb-1">Complemento</label>
-                <input type="text" id="profComplemento" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm">
+                <input type="text" id="profComplemento" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm" />
               </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label for="profNovaSenha" class="block text-xs font-semibold text-stone-700 mb-1">Nova Senha (deixe em branco para manter)</label>
-              <input type="password" id="profNovaSenha" placeholder="Nova senha opcional" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <label for="profNovaSenha" class="block text-xs font-semibold text-stone-700 mb-1">Nova Senha (opcional)</label>
+              <input type="password" id="profNovaSenha" placeholder="Deixe em branco para manter" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
             <div>
               <label for="profConfirmaSenha" class="block text-xs font-semibold text-stone-700 mb-1">Confirmar Nova Senha</label>
-              <input type="password" id="profConfirmaSenha" placeholder="Confirme a nova senha" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm">
+              <input type="password" id="profConfirmaSenha" placeholder="Repita a nova senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
             </div>
           </div>
 
           <div class="flex justify-end pt-2">
-            <button type="submit" class="px-8 py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition">
+            <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition">
               Salvar Alterações do Perfil
             </button>
           </div>
         </form>
       </div>
     </section>
-
-    <!-- ==========================================
-         6. PÁGINA CONTATOS
-         ========================================== -->
-    <section id="view-contacts" class="view-section">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Contatos da Comunidade</h2>
-            <p class="text-xs text-stone-500 mt-1">
-              Lista de todas as pessoas cadastradas. Clique nos ícones para abrir o WhatsApp, enviar E-mail ou abrir o endereço no Google Maps / Waze.
-            </p>
-          </div>
-          <button type="button" id="backFromContactsBtn" class="self-start sm:self-auto px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
-            ← Voltar à Página Inicial Logada
-          </button>
-        </div>
-
-        <!-- Search bar for contacts -->
-        <div class="mb-5">
-          <input type="text" id="contactsSearchInput" placeholder="Buscar contato por nome, sobrenome ou cidade..." class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600">
-        </div>
-
-        <!-- Contacts List Container -->
-        <div id="contactsListContainer" class="divide-y divide-stone-200"></div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         7. PÁGINA REGISTRAR PEDIDO DE ORAÇÃO
-         ========================================== -->
-    <section id="view-new-prayer" class="view-section">
-      <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Registrar Pedido de Oração</h2>
-            <p class="text-xs text-stone-500 mt-1">Seu nome, sobrenome, data e hora serão gravados automaticamente junto ao pedido.</p>
-          </div>
-          <button type="button" id="backFromNewPrayerBtn" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
-            ← Voltar
-          </button>
-        </div>
-
-        <!-- Author Automatic Metadata Preview -->
-        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 mb-5 flex items-center justify-between flex-wrap gap-2 text-xs text-amber-950">
-          <div>
-            <span class="font-semibold">Autor(a) do Pedido:</span>
-            <span id="newPrayerAuthorName" class="ml-1 font-bold"></span>
-          </div>
-          <div>
-            <span class="font-semibold">Data e Hora do Registro:</span>
-            <span id="newPrayerTimestampPreview" class="ml-1 font-mono">Agora</span>
-          </div>
-        </div>
-
-        <form id="newPrayerForm" class="space-y-4">
-          <div>
-            <label for="prayerTextInput" class="block text-xs font-semibold text-stone-700 mb-2">Descreva seu Pedido de Oração *</label>
-            <textarea id="prayerTextInput" rows="6" required="" placeholder="Escreva aqui seu pedido de oração pela família, saúde, gratidão, direção espiritual..." class="w-full p-4 rounded-2xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 leading-relaxed"></textarea>
-          </div>
-
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button type="button" id="cancelNewPrayerBtn" class="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 text-xs font-semibold hover:bg-stone-100 transition">
-              Cancelar
-            </button>
-            <button type="submit" class="px-7 py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition flex items-center gap-2">
-              <span>🙏 Salvar Pedido de Oração</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         8. PÁGINA ACOMPANHAR PEDIDOS DE ORAÇÃO
-         ========================================== -->
-    <section id="view-prayers" class="view-section">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="font-serif-display text-2xl font-bold text-stone-900">Acompanhar Pedidos de Oração</h2>
-            <p class="text-xs text-stone-500 mt-1">
-              Visualize os pedidos registrados. Você pode editar ou excluir seus próprios pedidos (administradores podem gerenciar todos).
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" id="exportWhatsAppBtn" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition flex items-center gap-2">
-              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"></path></svg>
-              <span>Exportar pedidos para WhatsApp</span>
-            </button>
-            <button type="button" id="backFromPrayersBtn" class="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
-              ← Voltar à Página Inicial Logada
-            </button>
-          </div>
-        </div>
-
-        <!-- Multi-Filter Checkboxes Bar -->
-        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200 mb-6">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-3 sm:gap-5">
-              <span class="text-xs font-bold text-stone-700 uppercase tracking-wider">Filtros Combináveis:</span>
-
-              <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-stone-800 select-none">
-                <input type="checkbox" id="filterWeek" class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
-                <span>Pedidos da Semana (últimos 7 dias)</span>
-              </label>
-
-              <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-stone-800 select-none">
-                <input type="checkbox" id="filterMonth" class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
-                <span>Pedidos do Mês (mês em curso)</span>
-              </label>
-
-              <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-stone-800 select-none">
-                <input type="checkbox" id="filterMale" class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
-                <span>Pedidos Masculinos</span>
-              </label>
-
-              <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-stone-800 select-none">
-                <input type="checkbox" id="filterFemale" class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
-                <span>Pedidos Femininos</span>
-              </label>
-            </div>
-
-            <button type="button" id="clearFiltersBtn" class="text-xs text-amber-800 hover:text-amber-950 font-semibold underline">
-              Limpar filtros
-            </button>
-          </div>
-        </div>
-
-        <!-- Prayer Count Summary -->
-        <div class="flex items-center justify-between text-xs text-stone-500 mb-4 px-1">
-          <span id="prayersFilteredStatus">Mostrando todos os pedidos</span>
-          <button type="button" id="quickAddPrayerFromListBtn" class="text-amber-800 font-semibold hover:underline">+ Registrar novo pedido</button>
-        </div>
-
-        <!-- Prayers List Container -->
-        <div id="prayersListContainer" class="space-y-4"></div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-stone-200 bg-white py-5 mt-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500">
-      <div>Portal de Pedidos de Oração — Pronto para GitHub Pages &amp; Supabase</div>
-      <div>Desenvolvido com suporte a ViaCEP, WhatsApp, Google Maps e Waze</div>
+  <!-- NAVEGAÇÃO MOBILE INFERIOR -->
+  <nav id="mobileBottomNav" class="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur border-t border-stone-200 px-2 py-1.5 grid grid-cols-4 gap-1 shadow-lg">
+    <button type="button" data-nav-route="home" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">🏠</span>
+      <span class="text-[10px] font-semibold mt-1">Início</span>
+    </button>
+    <button type="button" data-nav-route="contatos" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">👥</span>
+      <span class="text-[10px] font-semibold mt-1">Contatos</span>
+    </button>
+    <button type="button" id="mobileNewPrayerNavBtn" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">🙏</span>
+      <span class="text-[10px] font-semibold mt-1">Pedir Oração</span>
+    </button>
+    <button type="button" data-nav-route="acompanharpedidos" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">📋</span>
+      <span class="text-[10px] font-semibold mt-1">Mural</span>
+    </button>
+  </nav>
+
+  <!-- RODAPÉ -->
+  <footer class="border-t border-stone-200 bg-white py-5 mt-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500 text-center sm:text-left">
+      <div>Portal de Intercessão — Sincronizado com Supabase &amp; GitHub Pages</div>
+      <div>Compatível com Celular e Computador • ViaCEP, WhatsApp, Google Maps &amp; Waze</div>
     </div>
   </footer>
 
-  <!-- ==========================================
-       MODALS (NO BROWSER ALERTS/CONFIRMS)
-       ========================================== -->
-
-  <!-- 1. MANDATORY PASSWORD CHANGE MODAL (First Admin Login or Reset 1234 Login) -->
-  <div id="forcePasswordModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold">
-        🔐
-      </div>
-      <h3 class="font-serif-display text-xl font-bold text-stone-900">Alteração Obrigatória de Senha</h3>
-      <p id="forcePasswordModalDesc" class="text-xs text-stone-600 leading-relaxed">
-        Por segurança, você precisa definir uma nova senha pessoal antes de continuar utilizando o sistema.
-      </p>
-      <form id="forcePasswordForm" class="space-y-4">
-        <div>
-          <label for="forceNewPass" class="block text-xs font-semibold text-stone-700 mb-1">Nova Senha *</label>
-          <input type="password" id="forceNewPass" required="" placeholder="Digite sua nova senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm">
-        </div>
-        <div>
-          <label for="forceConfirmPass" class="block text-xs font-semibold text-stone-700 mb-1">Confirmar Nova Senha *</label>
-          <input type="password" id="forceConfirmPass" required="" placeholder="Confirme sua nova senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm">
-        </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm transition">
-          Atualizar Senha e Continuar
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 2. FORGOT PASSWORD MODAL (Sends notification to Admin to reset to 1234) -->
-  <div id="forgotPasswordModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-xl font-bold text-stone-900">Esqueci Minha Senha</h3>
-        <button type="button" id="closeForgotModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <p class="text-xs text-stone-600 leading-relaxed">
-        Informe seu e-mail cadastrado. Um aviso será enviado ao <strong>Administrador</strong>, que poderá resetar sua senha para <code class="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-amber-900">1234</code>. No seu próximo acesso, o sistema solicitará a criação de uma nova senha.
-      </p>
-      <form id="forgotPasswordForm" class="space-y-4">
-        <div>
-          <label for="forgotEmailInput" class="block text-xs font-semibold text-stone-700 mb-1">E-mail Cadastrado *</label>
-          <input type="email" id="forgotEmailInput" required="" placeholder="seu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm">
-        </div>
-        <div class="flex justify-end gap-2">
-          <button type="button" id="cancelForgotModalBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Enviar Aviso ao Administrador</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- 3. ADMIN PASSWORD RESET NOTIFICATIONS MODAL -->
-  <div id="adminResetsModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-xl font-bold text-stone-900">Solicitações de Reset de Senha</h3>
-        <button type="button" id="closeAdminResetsModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <p class="text-xs text-stone-600">
-        Ao clicar em <strong>Resetar para 1234</strong>, a senha do usuário passará a ser <code class="font-mono bg-stone-100 px-1 rounded">1234</code> e ele será obrigado a alterá-la no próximo login.
-      </p>
-      <div id="adminResetsListContainer" class="divide-y divide-stone-200 max-h-72 overflow-y-auto"></div>
-      <div class="flex justify-end">
-        <button type="button" id="closeAdminResetsFooterBtn" class="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700">Fechar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 4. MAPS CHOICE MODAL (Google Maps or Waze) -->
-  <div id="mapsChoiceModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-stone-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-lg font-bold text-stone-900">Abrir Endereço no Mapa</h3>
-        <button type="button" id="closeMapsModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
-        <div id="mapsModalPersonName" class="text-xs font-bold text-stone-900"></div>
-        <div id="mapsModalAddressText" class="text-xs text-stone-600 mt-1"></div>
-      </div>
-      <p class="text-xs text-stone-500">Escolha em qual aplicativo deseja abrir a rota:</p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a id="openGoogleMapsLink" href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold text-center flex items-center justify-center gap-2 transition">
-          <span>🗺️ Abrir no Google Maps</span>
-        </a>
-        <a id="openWazeLink" href="https://waze.com" target="_blank" rel="noopener noreferrer" class="py-3 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold text-center flex items-center justify-center gap-2 transition">
-          <span>🚗 Abrir no Waze</span>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. EDIT PRAYER MODAL -->
-  <div id="editPrayerModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-xl font-bold text-stone-900">Editar Pedido de Oração</h3>
-        <button type="button" id="closeEditPrayerModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <form id="editPrayerForm" class="space-y-4">
-        <input type="hidden" id="editPrayerIdInput">
-        <div>
-          <label for="editPrayerTextarea" class="block text-xs font-semibold text-stone-700 mb-1">Pedido de Oração *</label>
-          <textarea id="editPrayerTextarea" rows="5" required="" class="w-full p-3.5 rounded-2xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600"></textarea>
-        </div>
-        <div class="flex justify-end gap-2">
-          <button type="button" id="cancelEditPrayerBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
-          <button type="submit" class="px-6 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Salvar Alterações</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- 6. ADMIN EDIT USER MODAL -->
-  <div id="adminEditUserModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4 my-8">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-xl font-bold text-stone-900">Editar Usuário (Administrador)</h3>
-        <button type="button" id="closeAdminEditUserModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <form id="adminEditUserForm" class="space-y-3">
-        <input type="hidden" id="adminEditUserId">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="adminEditNome" class="block text-xs font-semibold text-stone-700 mb-1">Nome *</label>
-            <input type="text" id="adminEditNome" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-          <div>
-            <label for="adminEditSobrenome" class="block text-xs font-semibold text-stone-700 mb-1">Sobrenome *</label>
-            <input type="text" id="adminEditSobrenome" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="adminEditSexo" class="block text-xs font-semibold text-stone-700 mb-1">Sexo *</label>
-            <select id="adminEditSexo" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm bg-white">
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-            </select>
-          </div>
-          <div>
-            <label for="adminEditTelefone" class="block text-xs font-semibold text-stone-700 mb-1">Telefone *</label>
-            <input type="text" id="adminEditTelefone" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-        </div>
-        <div>
-          <label for="adminEditEmail" class="block text-xs font-semibold text-stone-700 mb-1">E-mail *</label>
-          <input type="email" id="adminEditEmail" required="" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label for="adminEditCep" class="block text-xs font-semibold text-stone-700 mb-1">CEP</label>
-            <input type="text" id="adminEditCep" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-          <div class="sm:col-span-2">
-            <label for="adminEditRua" class="block text-xs font-semibold text-stone-700 mb-1">Rua</label>
-            <input type="text" id="adminEditRua" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div>
-            <label for="adminEditNumero" class="block text-xs font-semibold text-stone-700 mb-1">Nº</label>
-            <input type="text" id="adminEditNumero" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-          <div>
-            <label for="adminEditBairro" class="block text-xs font-semibold text-stone-700 mb-1">Bairro</label>
-            <input type="text" id="adminEditBairro" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-          <div>
-            <label for="adminEditCidade" class="block text-xs font-semibold text-stone-700 mb-1">Cidade</label>
-            <input type="text" id="adminEditCidade" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm">
-          </div>
-          <div>
-            <label for="adminEditEstado" class="block text-xs font-semibold text-stone-700 mb-1">UF</label>
-            <input type="text" id="adminEditEstado" maxlength="2" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm uppercase">
-          </div>
-        </div>
-        <div class="flex justify-end gap-2 pt-3">
-          <button type="button" id="cancelAdminEditUserBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
-          <button type="submit" class="px-6 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Salvar Usuário</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- 7. CONFIRM DELETE MODAL -->
-  <div id="confirmDeleteModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-stone-200 space-y-4">
-      <h3 id="confirmDeleteTitle" class="font-serif-display text-lg font-bold text-stone-900">Confirmar Exclusão</h3>
-      <p id="confirmDeleteDesc" class="text-xs text-stone-600 leading-relaxed">Tem certeza que deseja excluir este registro?</p>
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" id="cancelDeleteModalBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
-        <button type="button" id="confirmDeleteActionBtn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold">Confirmar Exclusão</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 8. WEBCAM CAPTURE MODAL -->
-  <div id="webcamModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-stone-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-serif-display text-lg font-bold text-stone-900">Tirar Foto de Perfil</h3>
-        <button type="button" id="closeWebcamModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-      <div class="rounded-2xl overflow-hidden bg-stone-900 aspect-square flex items-center justify-center relative">
-        <video id="webcamVideo" autoplay="" playsinline="" class="w-full h-full object-cover"></video>
-        <canvas id="webcamCanvas" width="320" height="320" class="hidden"></canvas>
-      </div>
-      <div class="flex justify-end gap-2">
-        <button type="button" id="cancelWebcamBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
-        <button type="button" id="captureWebcamBtn" class="px-5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">📸 Capturar Foto</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 9. SUPABASE CONFIGURATION & SQL SCHEMA MODAL -->
-  <div id="supabaseConfigModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4 my-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="font-serif-display text-xl font-bold text-stone-900">Conexão Supabase &amp; Banco de Dados Online</h3>
-          <p class="text-xs text-stone-500 mt-0.5">Configure sua URL e Anon Key do Supabase para sincronizar na nuvem, ou use o armazenamento persistente integrado.</p>
-        </div>
-        <button type="button" id="closeSupabaseModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
-      </div>
-
-      <!-- Diagnóstico em Tempo Real do Supabase -->
-      <div id="supabaseDiagBox" class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs space-y-1">
-        <div id="supabaseDiagTitle" class="font-bold text-red-900">❌ Erro ao acessar tabela "usuarios" no Supabase</div>
-        <div id="supabaseDiagDetails" class="text-red-800 leading-relaxed">Chave Anon/Publishable Key inválida. Verifique a chave em Project Settings -&gt; API no Supabase.</div>
-      </div>
-
-      <form id="supabaseConfigForm" class="space-y-3 bg-stone-50 p-4 rounded-2xl border border-stone-200">
-        <div>
-          <label for="sbUrlInput" class="block text-xs font-semibold text-stone-700 mb-1">Supabase Project URL</label>
-          <input type="url" id="sbUrlInput" placeholder="https://seu-projeto.supabase.co" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-mono bg-white">
-          <p class="text-[11px] text-stone-500 mt-1">Exemplo: <code class="text-amber-700 bg-amber-50 px-1 py-0.5 rounded">https://xxxx.supabase.co</code> (Não inclua <code>/rest/v1</code> no final. Se você colar com /rest/v1, o sistema removerá automaticamente).</p>
-        </div>
-        <div>
-          <label for="sbKeyInput" class="block text-xs font-semibold text-stone-700 mb-1">Supabase Anon / Publishable Public Key</label>
-          <input type="text" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ou sb_publishable_..." class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-mono bg-white">
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <button type="button" id="disconnectSupabaseBtn" class="text-xs text-red-600 hover:underline font-medium">Usar Apenas Banco Local (Demonstração)</button>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" id="syncNowSupabaseBtn" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold transition">🔄 Testar e Sincronizar Agora</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">Salvar e Conectar ao Supabase</button>
-          </div>
-        </div>
-      </form>
-
-      <!-- Exportar index.html com credenciais gravadas para o GitHub Pages -->
-      <div class="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="space-y-0.5">
-          <div class="text-xs font-bold text-emerald-950">🌐 Publicou no GitHub Pages? Grave a conexão no código!</div>
-          <p class="text-[11px] text-emerald-800 leading-relaxed">
-            Após preencher sua URL e Key acima, clique no botão ao lado para baixar o arquivo <code>index.html</code> já com suas chaves gravadas no código. Assim, qualquer celular ou computador que abrir <code>leoguerramaia.github.io/Pedidodeoracao/</code> já estará conectado automaticamente ao seu Supabase!
-          </p>
-        </div>
-        <button type="button" id="downloadConfiguredHtmlBtn" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold whitespace-nowrap shadow-sm transition flex-shrink-0">
-          📥 Baixar index.html (Para GitHub)
-        </button>
-      </div>
-
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-stone-800">Script SQL Obrigatório (Cole no SQL Editor do Supabase e clique em RUN):</span>
-          <button type="button" id="copySqlSchemaBtn" class="px-3 py-1 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold">Copiar SQL</button>
-        </div>
-        <pre id="sqlSchemaBlock" class="p-3.5 rounded-2xl bg-stone-900 text-stone-100 text-[11px] font-mono overflow-x-auto max-h-44 leading-relaxed">-- 1. No painel do Supabase, abra "SQL Editor" -&gt; "New Query", cole tudo abaixo e clique em "Run":
-create table if not exists public.usuarios (
-  id text primary key,
-  username text,
-  nome text not null,
-  sobrenome text not null,
-  sexo text not null,
-  telefone text not null,
-  email text not null,
-  cep text,
-  rua text,
-  bairro text,
-  cidade text,
-  estado text,
-  numero text,
-  complemento text,
-  foto_perfil text,
-  senha text not null,
-  is_admin boolean default false,
-  must_change_password boolean default false,
-  reset_requested boolean default false,
-  created_at timestamptz default now()
-);
-
-create table if not exists public.pedidos_oracao (
-  id text primary key,
-  user_id text,
-  nome text not null,
-  sobrenome text not null,
-  sexo text not null,
-  pedido text not null,
-  created_at timestamptz default now()
-);
-
--- Remove restricoes antigas que podiam bloquear cadastros ou pedidos:
-alter table public.pedidos_oracao drop constraint if exists pedidos_oracao_user_id_fkey;
-alter table public.usuarios drop constraint if exists usuarios_username_key;
-
--- Habilita RLS e cria politicas de leitura e gravacao online:
-alter table public.usuarios enable row level security;
-alter table public.pedidos_oracao enable row level security;
-
-drop policy if exists "Acesso publico usuarios" on public.usuarios;
-create policy "Acesso publico usuarios" on public.usuarios for all to public using (true) with check (true);
-
-drop policy if exists "Acesso publico pedidos" on public.pedidos_oracao;
-create policy "Acesso publico pedidos" on public.pedidos_oracao for all to public using (true) with check (true);
-
--- Garante permissao de leitura e escrita para a chave publica (anon / authenticated):
-grant usage on schema public to anon, authenticated;
-grant all on table public.usuarios to anon, authenticated, service_role;
-grant all on table public.pedidos_oracao to anon, authenticated, service_role;</pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST NOTIFICATION -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-  <!-- ==========================================
-       APPLICATION LOGIC (JAVASCRIPT)
-       ========================================== -->
-  <script>
-    (function() {
-      // --- DEFAULT AVATAR GENERATOR (SVG Data URI) ---
-      function createAvatarSvg(initials, bgHex) {
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
-          '<rect width="120" height="120" rx="60" fill="' + bgHex + '"/>' +
-          '<text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="42" font-weight="700">' +
-          initials.toUpperCase() + '</text></svg>';
-        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-      }
-
-      // --- CONFIGURAÇÃO FIXA DO SUPABASE (OPCIONAL PARA GITHUB PAGES) ---
-      // Quando você usa o botão "Baixar index.html (Para GitHub)", suas chaves ficam salvas aqui
-      // para que todos os visitantes do site no GitHub se conectem automaticamente ao seu banco:
-      var EMBEDDED_SUPABASE_CONFIG = {
-        url: 'https://muocgmrzqmzlqsfcwwjv.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11b2NnbXJ6cW16bHFzZmN3d2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNzkxNTAsImV4cCI6MjA1NTk1NTE1MH0.dJInm38kjqwNKsqkYUXJUj5fcXf1yGG6HNDI8luIVYc'
-      };
-
-      // --- STORAGE KEYS ---
-      var STORAGE_KEYS = {
-        USERS: 'portal_oracao_users_v1',
-        PRAYERS: 'portal_oracao_prayers_v1',
-        SESSION: 'portal_oracao_session_v1',
-        SB_CONFIG: 'portal_oracao_sb_config_v1'
-      };
-
-      // --- INITIAL SEED DATA ---
-      var now = new Date();
-      var twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
-      var fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString();
-      var twelveDaysAgo = new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString();
-
-      var defaultUsers = [
-        {
-          id: 'usr_admin',
-          username: 'admin',
-          nome: 'Administrador',
-          sobrenome: 'Geral',
-          sexo: 'Masculino',
-          telefone: '(11) 99999-0000',
-          email: 'admin@oracao.org',
-          cep: '01001-000',
-          rua: 'Praça da Sé',
-          bairro: 'Sé',
-          cidade: 'São Paulo',
-          estado: 'SP',
-          numero: '100',
-          complemento: 'Sala 1',
-          foto_perfil: createAvatarSvg('AD', '#B45309'),
-          senha: 'admin',
-          is_admin: true,
-          must_change_password: true,
-          reset_requested: false,
-          created_at: twelveDaysAgo
-        },
-        {
-          id: 'usr_maria',
-          username: 'maria',
-          nome: 'Maria',
-          sobrenome: 'Oliveira',
-          sexo: 'Feminino',
-          telefone: '(11) 98765-4321',
-          email: 'maria@exemplo.com',
-          cep: '01310-100',
-          rua: 'Avenida Paulista',
-          bairro: 'Bela Vista',
-          cidade: 'São Paulo',
-          estado: 'SP',
-          numero: '1578',
-          complemento: 'Apto 42',
-          foto_perfil: createAvatarSvg('MO', '#047857'),
-          senha: '123456',
-          is_admin: false,
-          must_change_password: false,
-          reset_requested: false,
-          created_at: fiveDaysAgo
-        },
-        {
-          id: 'usr_joao',
-          username: 'joao',
-          nome: 'João',
-          sobrenome: 'Santos',
-          sexo: 'Masculino',
-          telefone: '(21) 99888-7766',
-          email: 'joao@exemplo.com',
-          cep: '20040-002',
-          rua: 'Avenida Rio Branco',
-          bairro: 'Centro',
-          cidade: 'Rio de Janeiro',
-          estado: 'RJ',
-          numero: '156',
-          complemento: 'Bloco B',
-          foto_perfil: createAvatarSvg('JS', '#1D4ED8'),
-          senha: '123456',
-          is_admin: false,
-          must_change_password: false,
-          reset_requested: false,
-          created_at: twoDaysAgo
-        }
-      ];
-
-      var defaultPrayers = [
-        {
-          id: 'ped_1',
-          user_id: 'usr_maria',
-          nome: 'Maria',
-          sobrenome: 'Oliveira',
-          sexo: 'Feminino',
-          pedido: 'Peço oração pela saúde da minha mãe e pela cirurgia que ela realizará nesta semana, para que Deus conduza toda a equipe médica.',
-          created_at: twoDaysAgo
-        },
-        {
-          id: 'ped_2',
-          user_id: 'usr_joao',
-          nome: 'João',
-          sobrenome: 'Santos',
-          sexo: 'Masculino',
-          pedido: 'Agradeço pelas bênçãos recebidas neste mês e peço direção espiritual para uma nova porta de emprego para minha família.',
-          created_at: fiveDaysAgo
-        },
-        {
-          id: 'ped_3',
-          user_id: 'usr_maria',
-          nome: 'Maria',
-          sobrenome: 'Oliveira',
-          sexo: 'Feminino',
-          pedido: 'Oração pelos jovens da nossa comunidade e pelo fortalecimento das famílias.',
-          created_at: twelveDaysAgo
-        }
-      ];
-
-      // --- STATE ---
-      var state = {
-        users: [],
-        prayers: [],
-        currentUser: null,
-        regPhotoDataUrl: createAvatarSvg('NV', '#78716C'),
-        profPhotoDataUrl: '',
-        webcamTarget: 'register',
-        webcamStream: null,
-        pendingDelete: null,
-        supabaseClient: null
-      };
-
-      // --- SAFE LOCALSTORAGE HELPERS ---
-      function safeGetStorage(key, fallback) {
-        try {
-          var raw = localStorage.getItem(key);
-          return raw ? JSON.parse(raw) : fallback;
-        } catch (e) {
-          return fallback;
-        }
-      }
-
-      function safeSetStorage(key, val) {
-        try {
-          localStorage.setItem(key, JSON.stringify(val));
-        } catch (e) {
-          // Ignore quota or sandbox storage restrictions
-        }
-      }
-
-      // --- TOAST HELPER ---
-      function showToast(message, type) {
-        var container = document.getElementById('toastContainer');
-        var el = document.createElement('div');
-        var bgClass = type === 'error'
-          ? 'bg-red-700 text-white'
-          : type === 'warning'
-            ? 'bg-amber-700 text-white'
-            : 'bg-stone-900 text-white';
-        el.className = 'pointer-events-auto px-4 py-3 rounded-2xl shadow-lg text-xs font-medium flex items-center justify-between gap-3 transition ' + bgClass;
-        el.innerHTML = '<span>' + message + '</span>';
-        container.appendChild(el);
-        setTimeout(function() {
-          if (el.parentNode) el.parentNode.removeChild(el);
-        }, 4200);
-      }
-
-      // --- SANITIZE PAYLOADS FOR SUPABASE ---
-      function cleanUserRecord(u) {
-        return {
-          id: String(u.id || ('usr_' + Date.now())),
-          username: u.username || (u.email ? u.email.split('@')[0] : 'usuario'),
-          nome: u.nome || '',
-          sobrenome: u.sobrenome || '',
-          sexo: u.sexo || 'Masculino',
-          telefone: u.telefone || '',
-          email: (u.email || '').toLowerCase(),
-          cep: u.cep || '',
-          rua: u.rua || '',
-          bairro: u.bairro || '',
-          cidade: u.cidade || '',
-          estado: u.estado || '',
-          numero: u.numero || '',
-          complemento: u.complemento || '',
-          foto_perfil: u.foto_perfil || '',
-          senha: u.senha || '1234',
-          is_admin: Boolean(u.is_admin),
-          must_change_password: Boolean(u.must_change_password),
-          reset_requested: Boolean(u.reset_requested),
-          created_at: u.created_at || new Date().toISOString()
-        };
-      }
-
-      function cleanPrayerRecord(p) {
-        return {
-          id: String(p.id || ('ped_' + Date.now())),
-          user_id: String(p.user_id || ''),
-          nome: p.nome || '',
-          sobrenome: p.sobrenome || '',
-          sexo: p.sexo || 'Masculino',
-          pedido: p.pedido || '',
-          created_at: p.created_at || new Date().toISOString()
-        };
-      }
-
-      function updateDiagBox(statusType, title, detailsHtml) {
-        var box = document.getElementById('supabaseDiagBox');
-        var titleEl = document.getElementById('supabaseDiagTitle');
-        var detEl = document.getElementById('supabaseDiagDetails');
-        if (!box || !titleEl || !detEl) return;
-
-        if (statusType === 'ok') {
-          box.className = 'p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs space-y-1';
-          titleEl.className = 'font-bold text-emerald-900';
-          detEl.className = 'text-emerald-800 leading-relaxed';
-        } else if (statusType === 'error') {
-          box.className = 'p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs space-y-1';
-          titleEl.className = 'font-bold text-red-900';
-          detEl.className = 'text-red-800 leading-relaxed';
-        } else {
-          box.className = 'p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs space-y-1';
-          titleEl.className = 'font-bold text-amber-900';
-          detEl.className = 'text-amber-800 leading-relaxed';
-        }
-        titleEl.textContent = title;
-        detEl.innerHTML = detailsHtml;
-      }
-
-      function sanitizeSupabaseUrl(rawUrl) {
-        if (!rawUrl) return '';
-        var str = String(rawUrl).trim();
-        if (!str) return '';
-        if (!/^https?:\/\//i.test(str)) {
-          str = 'https://' + str;
-        }
-        try {
-          var parsed = new URL(str);
-          if (parsed.origin && parsed.origin !== 'null') {
-            return parsed.origin;
-          }
-        } catch (e) {}
-        return str.replace(/\/+$/, '').replace(/\/(rest|auth)(\/v\d+)?\/?$/i, '');
-      }
-
-      function formatSupabaseError(err) {
-        if (!err) return 'Erro desconhecido.';
-        var msg = err.message || err.details || String(err);
-        var code = err.code || '';
-        if (code === 'PGRST125' || msg.indexOf('Invalid path') !== -1 || msg.indexOf('PGRST125') !== -1) {
-          return 'URL do projeto inválida! A URL continha "/rest/v1" ou caminhos extras. A URL do Supabase deve ser apenas o domínio base do projeto (ex: https://muocgmrzqmzlqsfcwwjv.supabase.co). O sistema corrigiu isso automaticamente; clique em "Salvar e Conectar ao Supabase" novamente.';
-        }
-        if (code === '42P01' || code === 'PGRST205' || msg.indexOf('does not exist') !== -1 || msg.indexOf('schema cache') !== -1) {
-          return 'As tabelas (usuarios / pedidos_oracao) ainda não foram criadas no Supabase! Copie o Script SQL no botão "Supabase / SQL" e execute no SQL Editor do Supabase.';
-        }
-        if (code === '42501' || msg.indexOf('row-level security') !== -1 || msg.indexOf('permission denied') !== -1) {
-          return 'Permissão negada no Supabase (RLS/GRANT). Copie o Script SQL atualizado e execute no SQL Editor do Supabase.';
-        }
-        if (code === '23503') {
-          return 'Restrição de chave estrangeira no banco. Execute o Script SQL atualizado no SQL Editor do Supabase para corrigir.';
-        }
-        if (msg.indexOf('JWT') !== -1 || msg.indexOf('API key') !== -1 || msg.indexOf('apikey') !== -1) {
-          return 'Chave Anon/Publishable Key inválida. Verifique a chave em Project Settings -> API no Supabase.';
-        }
-        return msg + (code ? ' (Código ' + code + ')' : '');
-      }
-
-      function getActiveSupabaseCredentials() {
-        var stored = safeGetStorage(STORAGE_KEYS.SB_CONFIG, null);
-        if (stored && stored.url && stored.key) {
-          return { url: sanitizeSupabaseUrl(stored.url), key: String(stored.key || '').trim() };
-        }
-        if (EMBEDDED_SUPABASE_CONFIG.url && EMBEDDED_SUPABASE_CONFIG.key) {
-          return { url: sanitizeSupabaseUrl(EMBEDDED_SUPABASE_CONFIG.url), key: String(EMBEDDED_SUPABASE_CONFIG.key || '').trim() };
-        }
-        return null;
-      }
-
-      // --- INITIALIZE DATA & SUPABASE ---
-      async function initData() {
-        var storedUsers = safeGetStorage(STORAGE_KEYS.USERS, null);
-        var storedPrayers = safeGetStorage(STORAGE_KEYS.PRAYERS, null);
-
-        state.users = storedUsers && storedUsers.length ? storedUsers : defaultUsers.slice();
-        state.prayers = storedPrayers && storedPrayers.length ? storedPrayers : defaultPrayers.slice();
-
-        saveAllLocal();
-
-        var creds = getActiveSupabaseCredentials();
-        if (creds && creds.url && creds.key && window.supabase) {
-          await connectSupabase(creds.url, creds.key, true);
-        }
-
-        var sessionUserId = safeGetStorage(STORAGE_KEYS.SESSION, null);
-        if (sessionUserId) {
-          var found = state.users.find(function(u) { return u.id === sessionUserId; });
-          if (found) {
-            state.currentUser = found;
-            updateAuthUI();
-            if (found.must_change_password) {
-              openForcePasswordModal();
-            }
-            showView('view-dashboard');
-            return;
-          }
-        }
-        updateAuthUI();
-        showView('view-landing');
-      }
-
-      function saveAllLocal() {
-        safeSetStorage(STORAGE_KEYS.USERS, state.users);
-        safeSetStorage(STORAGE_KEYS.PRAYERS, state.prayers);
-      }
-
-      async function connectSupabase(url, key, silent) {
-        try {
-          var cleanUrl = sanitizeSupabaseUrl(url);
-          var cleanKey = (key || '').trim();
-          if (!cleanUrl || !cleanKey) return false;
-          var sbUrlEl = document.getElementById('sbUrlInput');
-          if (sbUrlEl) sbUrlEl.value = cleanUrl;
-          safeSetStorage(STORAGE_KEYS.SB_CONFIG, { url: cleanUrl, key: cleanKey });
-          state.supabaseClient = window.supabase.createClient(cleanUrl, cleanKey);
-
-          // 1. Test & Fetch usuarios
-          var uRes = await state.supabaseClient.from('usuarios').select('*');
-          if (uRes.error) {
-            var errMsgU = formatSupabaseError(uRes.error);
-            document.getElementById('dbStatusBadge').className = 'inline-block w-2 h-2 rounded-full bg-red-500 animate-ping';
-            document.getElementById('dbStatusText').textContent = 'Erro Supabase (Clique p/ Corrigir)';
-            updateDiagBox('error', '❌ Erro ao acessar tabela "usuarios" no Supabase', escapeHtml(errMsgU));
-            if (!silent) showToast(errMsgU, 'error');
-            return false;
-          }
-
-          // Merge local users + remote users so no newly registered user is ever lost
-          var remoteUsers = uRes.data || [];
-          var remoteUserMap = {};
-          remoteUsers.forEach(function(ru) {
-            remoteUserMap[ru.id] = ru;
-            if (ru.email) remoteUserMap['email:' + ru.email.toLowerCase()] = ru;
-          });
-
-          var usersToPush = [];
-          if (remoteUsers.length === 0) {
-            usersToPush = state.users.map(cleanUserRecord);
-          } else {
-            state.users.forEach(function(lu) {
-              var isDefaultSeed = (lu.id === 'usr_maria' || lu.id === 'usr_joao');
-              var existsRemotely = remoteUserMap[lu.id] || (lu.email && remoteUserMap['email:' + lu.email.toLowerCase()]);
-              if (!existsRemotely && !isDefaultSeed) {
-                usersToPush.push(cleanUserRecord(lu));
-              }
-            });
-          }
-
-          if (usersToPush.length > 0) {
-            var pushURes = await state.supabaseClient.from('usuarios').upsert(usersToPush, { onConflict: 'id' });
-            if (pushURes.error) {
-              var pushErrMsg = formatSupabaseError(pushURes.error);
-              updateDiagBox('error', '❌ Erro ao gravar na tabela "usuarios"', escapeHtml(pushErrMsg));
-              if (!silent) showToast(pushErrMsg, 'error');
-              return false;
-            }
-            var uResAfter = await state.supabaseClient.from('usuarios').select('*');
-            if (!uResAfter.error && uResAfter.data) {
-              remoteUsers = uResAfter.data;
-            }
-          }
-          if (remoteUsers.length > 0) {
-            state.users = remoteUsers;
-          }
-
-          // 2. Test & Fetch pedidos_oracao
-          var pRes = await state.supabaseClient.from('pedidos_oracao').select('*').order('created_at', { ascending: false });
-          if (pRes.error) {
-            var errMsgP = formatSupabaseError(pRes.error);
-            document.getElementById('dbStatusBadge').className = 'inline-block w-2 h-2 rounded-full bg-red-500 animate-ping';
-            document.getElementById('dbStatusText').textContent = 'Erro Supabase (Clique p/ Corrigir)';
-            updateDiagBox('error', '❌ Erro ao acessar tabela "pedidos_oracao" no Supabase', escapeHtml(errMsgP));
-            if (!silent) showToast(errMsgP, 'error');
-            return false;
-          }
-
-          var remotePrayers = pRes.data || [];
-          var remotePrayerMap = {};
-          remotePrayers.forEach(function(rp) { remotePrayerMap[rp.id] = rp; });
-
-          var prayersToPush = [];
-          if (remotePrayers.length === 0) {
-            prayersToPush = state.prayers.map(cleanPrayerRecord);
-          } else {
-            state.prayers.forEach(function(lp) {
-              var isDefaultPrayer = (lp.id === 'ped_1' || lp.id === 'ped_2' || lp.id === 'ped_3');
-              if (!remotePrayerMap[lp.id] && !isDefaultPrayer) {
-                prayersToPush.push(cleanPrayerRecord(lp));
-              }
-            });
-          }
-
-          if (prayersToPush.length > 0) {
-            var pushPRes = await state.supabaseClient.from('pedidos_oracao').upsert(prayersToPush, { onConflict: 'id' });
-            if (pushPRes.error) {
-              var pushPErrMsg = formatSupabaseError(pushPRes.error);
-              updateDiagBox('error', '❌ Erro ao gravar na tabela "pedidos_oracao"', escapeHtml(pushPErrMsg));
-              if (!silent) showToast(pushPErrMsg, 'error');
-              return false;
-            }
-            var pResAfter = await state.supabaseClient.from('pedidos_oracao').select('*').order('created_at', { ascending: false });
-            if (!pResAfter.error && pResAfter.data) {
-              remotePrayers = pResAfter.data;
-            }
-          }
-          if (remotePrayers.length > 0) {
-            state.prayers = remotePrayers;
-          }
-
-          // Keep logged in user reference updated
-          if (state.currentUser) {
-            var updatedMe = state.users.find(function(u) { return u.id === state.currentUser.id; });
-            if (updatedMe) state.currentUser = updatedMe;
-          }
-
-          saveAllLocal();
-          document.getElementById('dbStatusBadge').className = 'inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-          document.getElementById('dbStatusText').textContent = 'Supabase Online (' + state.users.length + ' usuários / ' + state.prayers.length + ' pedidos)';
-          updateDiagBox(
-            'ok',
-            '✅ Conectado e Gravando no Supabase com Sucesso!',
-            'Tabelas verificadas: <strong>' + state.users.length + ' usuário(s)</strong> na tabela <code>usuarios</code> e <strong>' + state.prayers.length + ' pedido(s)</strong> na tabela <code>pedidos_oracao</code>. Todos os novos cadastros e pedidos são salvos em tempo real na nuvem.'
-          );
-
-          renderDashboardCounts();
-          renderContactsList();
-          renderPrayersList();
-          updateAuthUI();
-          if (!silent) showToast('Conectado e sincronizado com o Supabase (' + state.prayers.length + ' pedidos)!', 'success');
-          return true;
-        } catch (err) {
-          document.getElementById('dbStatusBadge').className = 'inline-block w-2 h-2 rounded-full bg-amber-500';
-          document.getElementById('dbStatusText').textContent = 'Erro de Conexão Supabase';
-          updateDiagBox('error', '❌ Falha ao conectar ao Supabase', 'Verifique se a URL do projeto (ex: <code>https://xyz.supabase.co</code>) e a Anon Key estão corretas.');
-          if (!silent) showToast('Não foi possível conectar ao Supabase. Verifique a URL e a Anon Key.', 'error');
-          return false;
-        }
-      }
-
-      async function syncUserToSupabase(userObj) {
-        saveAllLocal();
-        if (!state.supabaseClient) {
-          var creds = getActiveSupabaseCredentials();
-          if (creds && window.supabase) {
-            state.supabaseClient = window.supabase.createClient(creds.url, creds.key);
-          }
-        }
-        if (state.supabaseClient) {
-          try {
-            var payload = cleanUserRecord(userObj);
-            var res = await state.supabaseClient.from('usuarios').upsert(payload, { onConflict: 'id' });
-            if (res.error) {
-              var msg = formatSupabaseError(res.error);
-              showToast('Erro ao salvar usuário no Supabase: ' + msg, 'error');
-              updateDiagBox('error', '❌ Erro ao gravar usuário no Supabase', escapeHtml(msg));
-              return false;
-            }
-            document.getElementById('dbStatusText').textContent = 'Supabase Online (' + state.users.length + ' usuários / ' + state.prayers.length + ' pedidos)';
-            return true;
-          } catch (e) {
-            showToast('Erro de rede ao comunicar com o Supabase.', 'error');
-            return false;
-          }
-        }
-        return false;
-      }
-
-      async function deleteUserFromSupabase(userId) {
-        saveAllLocal();
-        if (state.supabaseClient) {
-          try {
-            var res = await state.supabaseClient.from('usuarios').delete().eq('id', userId);
-            await state.supabaseClient.from('pedidos_oracao').delete().eq('user_id', userId);
-            if (res.error) {
-              showToast('Erro ao excluir no Supabase: ' + formatSupabaseError(res.error), 'error');
-              return false;
-            }
-            document.getElementById('dbStatusText').textContent = 'Supabase Online (' + state.users.length + ' usuários / ' + state.prayers.length + ' pedidos)';
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-        return false;
-      }
-
-      async function syncPrayerToSupabase(prayerObj) {
-        saveAllLocal();
-        if (!state.supabaseClient) {
-          var creds = getActiveSupabaseCredentials();
-          if (creds && window.supabase) {
-            state.supabaseClient = window.supabase.createClient(creds.url, creds.key);
-          }
-        }
-        if (state.supabaseClient) {
-          try {
-            // Ensure current user exists in public.usuarios first so foreign keys (if present) never fail
-            if (state.currentUser) {
-              await state.supabaseClient.from('usuarios').upsert(cleanUserRecord(state.currentUser), { onConflict: 'id' });
-            }
-            var payload = cleanPrayerRecord(prayerObj);
-            var res = await state.supabaseClient.from('pedidos_oracao').upsert(payload, { onConflict: 'id' });
-            if (res.error) {
-              var msg = formatSupabaseError(res.error);
-              showToast('Erro ao salvar pedido no Supabase: ' + msg, 'error');
-              updateDiagBox('error', '❌ Erro ao gravar pedido no Supabase', escapeHtml(msg));
-              return false;
-            }
-            document.getElementById('dbStatusText').textContent = 'Supabase Online (' + state.users.length + ' usuários / ' + state.prayers.length + ' pedidos)';
-            return true;
-          } catch (e) {
-            showToast('Erro de rede ao salvar pedido no Supabase.', 'error');
-            return false;
-          }
-        }
-        return false;
-      }
-
-      async function deletePrayerFromSupabase(prayerId) {
-        saveAllLocal();
-        if (state.supabaseClient) {
-          try {
-            var res = await state.supabaseClient.from('pedidos_oracao').delete().eq('id', prayerId);
-            if (res.error) {
-              showToast('Erro ao excluir pedido no Supabase: ' + formatSupabaseError(res.error), 'error');
-              return false;
-            }
-            document.getElementById('dbStatusText').textContent = 'Supabase Online (' + state.users.length + ' usuários / ' + state.prayers.length + ' pedidos)';
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-        return false;
-      }
-
-      // --- NAVIGATION / VIEW SWITCHER ---
-      function showView(viewId) {
-        var views = document.querySelectorAll('.view-section');
-        for (var i = 0; i < views.length; i++) {
-          views[i].classList.remove('active');
-        }
-        var target = document.getElementById(viewId);
-        if (target) target.classList.add('active');
-
-        if (viewId === 'view-dashboard') {
-          renderDashboardCounts();
-        } else if (viewId === 'view-contacts') {
-          renderContactsList();
-        } else if (viewId === 'view-new-prayer') {
-          prepareNewPrayerView();
-        } else if (viewId === 'view-prayers') {
-          renderPrayersList();
-        } else if (viewId === 'view-profile') {
-          populateProfileForm();
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      function updateAuthUI() {
-        var loggedHeader = document.getElementById('loggedUserHeader');
-        var adminBell = document.getElementById('adminNotifBtn');
-
-        if (state.currentUser) {
-          loggedHeader.classList.remove('hidden');
-          loggedHeader.classList.add('flex');
-          document.getElementById('headerUserAvatar').src = state.currentUser.foto_perfil || createAvatarSvg(state.currentUser.nome.slice(0, 2), '#B45309');
-          document.getElementById('headerUserName').textContent = state.currentUser.nome + ' ' + state.currentUser.sobrenome;
-          document.getElementById('headerUserRole').textContent = state.currentUser.is_admin ? 'Administrador' : 'Membro';
-
-          if (state.currentUser.is_admin) {
-            adminBell.classList.remove('hidden');
-            updateAdminNotificationsUI();
-          } else {
-            adminBell.classList.add('hidden');
-          }
-        } else {
-          loggedHeader.classList.add('hidden');
-          loggedHeader.classList.remove('flex');
-          adminBell.classList.add('hidden');
-        }
-      }
-
-      function updateAdminNotificationsUI() {
-        var pendingUsers = state.users.filter(function(u) { return u.reset_requested; });
-        var countBadge = document.getElementById('adminNotifCount');
-        var banner = document.getElementById('adminResetBanner');
-        var bannerText = document.getElementById('adminResetBannerText');
-
-        if (state.currentUser && state.currentUser.is_admin && pendingUsers.length > 0) {
-          countBadge.textContent = String(pendingUsers.length);
-          countBadge.classList.remove('hidden');
-          banner.classList.remove('hidden');
-          bannerText.textContent = pendingUsers.length + ' usuário(s) solicitaram o reset de senha para 1234.';
-        } else {
-          countBadge.classList.add('hidden');
-          banner.classList.add('hidden');
-        }
-      }
-
-      function renderDashboardCounts() {
-        if (!state.currentUser) return;
-        document.getElementById('dashWelcomeTitle').textContent = 'Olá, ' + state.currentUser.nome + ' ' + state.currentUser.sobrenome + '!';
-        document.getElementById('dashRoleBadge').textContent = state.currentUser.is_admin
-          ? '👑 Acesso Administrador Ativo'
-          : '✨ Área Logada do Membro';
-        document.getElementById('dashContactsCount').textContent = state.users.length + ' pessoa(s) cadastrada(s)';
-        document.getElementById('dashPrayersCount').textContent = state.prayers.length + ' pedido(s) registrado(s)';
-        updateAdminNotificationsUI();
-      }
-
-      // --- VIACEP AUTOMATIC ADDRESS LOOKUP ---
-      var cepFallbackMap = {
-        '01001000': { logradouro: 'Praça da Sé', bairro: 'Sé', localidade: 'São Paulo', uf: 'SP' },
-        '01310100': { logradouro: 'Avenida Paulista', bairro: 'Bela Vista', localidade: 'São Paulo', uf: 'SP' },
-        '20040002': { logradouro: 'Avenida Rio Branco', bairro: 'Centro', localidade: 'Rio de Janeiro', uf: 'RJ' },
-        '30140071': { logradouro: 'Avenida Brasil', bairro: 'Santa Efigênia', localidade: 'Belo Horizonte', uf: 'MG' },
-        '64000040': { logradouro: 'Avenida Frei Serafim', bairro: 'Centro', localidade: 'Teresina', uf: 'PI' }
-      };
-
-      async function lookupCep(cepValue, prefix) {
-        var cleanCep = (cepValue || '').replace(/\D/g, '');
-        var statusEl = document.getElementById(prefix + 'CepStatus');
-        if (cleanCep.length !== 8) {
-          if (statusEl) statusEl.textContent = 'Digite um CEP válido com 8 números.';
-          return;
-        }
-        if (statusEl) statusEl.textContent = 'Buscando endereço pelo CEP...';
-
-        try {
-          var response = await fetch('https://viacep.com.br/ws/' + cleanCep + '/json/');
-          var data = await response.json();
-          if (data && !data.erro) {
-            document.getElementById(prefix + 'Rua').value = data.logradouro || '';
-            document.getElementById(prefix + 'Bairro').value = data.bairro || '';
-            document.getElementById(prefix + 'Cidade').value = data.localidade || '';
-            document.getElementById(prefix + 'Estado').value = data.uf || '';
-            if (statusEl) statusEl.textContent = 'Endereço preenchido! Informe Número e Complemento.';
-            document.getElementById(prefix + 'Numero').focus();
-            return;
-          } else {
-            if (statusEl) statusEl.textContent = 'CEP não encontrado. Preencha manualmente.';
-          }
-        } catch (err) {
-          var fb = cepFallbackMap[cleanCep];
-          if (fb) {
-            document.getElementById(prefix + 'Rua').value = fb.logradouro;
-            document.getElementById(prefix + 'Bairro').value = fb.bairro;
-            document.getElementById(prefix + 'Cidade').value = fb.localidade;
-            document.getElementById(prefix + 'Estado').value = fb.uf;
-            if (statusEl) statusEl.textContent = 'Endereço preenchido! Informe Número e Complemento.';
-          } else {
-            if (statusEl) statusEl.textContent = 'Serviço de CEP offline. Você pode preencher os campos.';
-          }
-        }
-      }
-
-      // --- PHOTO UPLOAD & WEBCAM HANDLERS ---
-      function handleImageFileInput(file, targetType) {
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(evt) {
-          var img = new Image();
-          img.onload = function() {
-            var canvas = document.createElement('canvas');
-            var size = 200;
-            canvas.width = size;
-            canvas.height = size;
-            var ctx = canvas.getContext('2d');
-            var minDim = Math.min(img.width, img.height);
-            var sx = (img.width - minDim) / 2;
-            var sy = (img.height - minDim) / 2;
-            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-            var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            if (targetType === 'register') {
-              state.regPhotoDataUrl = dataUrl;
-              document.getElementById('regPhotoPreview').src = dataUrl;
-            } else {
-              state.profPhotoDataUrl = dataUrl;
-              document.getElementById('profPhotoPreview').src = dataUrl;
-            }
-            showToast('Foto carregada com sucesso!', 'success');
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      async function openWebcamModal(targetType) {
-        state.webcamTarget = targetType;
-        var modal = document.getElementById('webcamModal');
-        var video = document.getElementById('webcamVideo');
-        modal.classList.remove('hidden');
-        try {
-          var stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-          state.webcamStream = stream;
-          video.srcObject = stream;
-        } catch (err) {
-          closeWebcamModal();
-          showToast('Câmera não disponível neste navegador. Use o botão Galeria/Celular.', 'warning');
-        }
-      }
-
-      function closeWebcamModal() {
-        var modal = document.getElementById('webcamModal');
-        modal.classList.add('hidden');
-        if (state.webcamStream) {
-          state.webcamStream.getTracks().forEach(function(t) { t.stop(); });
-          state.webcamStream = null;
-        }
-      }
-
-      function captureWebcamPhoto() {
-        var video = document.getElementById('webcamVideo');
-        var canvas = document.getElementById('webcamCanvas');
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        if (state.webcamTarget === 'register') {
-          state.regPhotoDataUrl = dataUrl;
-          document.getElementById('regPhotoPreview').src = dataUrl;
-        } else {
-          state.profPhotoDataUrl = dataUrl;
-          document.getElementById('profPhotoPreview').src = dataUrl;
-        }
-        closeWebcamModal();
-        showToast('Foto capturada pela câmera!', 'success');
-      }
-
-      // --- LOGIN, REGISTER & PASSWORD FLOWS ---
-      async function handleLoginSubmit(e) {
-        e.preventDefault();
-        var identifier = document.getElementById('loginIdentifier').value.trim().toLowerCase();
-        var pass = document.getElementById('loginPassword').value;
-
-        if (state.supabaseClient) {
-          try {
-            var uRes = await state.supabaseClient.from('usuarios').select('*');
-            if (!uRes.error && uRes.data && uRes.data.length > 0) {
-              state.users = uRes.data;
-              saveAllLocal();
-            }
-          } catch (err) {}
-        }
-
-        var user = state.users.find(function(u) {
-          return (u.email && u.email.toLowerCase() === identifier) ||
-                 (u.username && u.username.toLowerCase() === identifier);
-        });
-
-        if (!user || user.senha !== pass) {
-          showToast('Credenciais inválidas. Verifique seu e-mail/usuário e senha.', 'error');
-          return;
-        }
-
-        state.currentUser = user;
-        safeSetStorage(STORAGE_KEYS.SESSION, user.id);
-        updateAuthUI();
-        document.getElementById('loginForm').reset();
-
-        if (user.must_change_password) {
-          openForcePasswordModal();
-        } else {
-          showToast('Login realizado com sucesso!', 'success');
-        }
-        showView('view-dashboard');
-      }
-
-      function openForcePasswordModal() {
-        var modal = document.getElementById('forcePasswordModal');
-        var desc = document.getElementById('forcePasswordModalDesc');
-        if (state.currentUser && state.currentUser.username === 'admin' && state.currentUser.senha === 'admin') {
-          desc.textContent = 'Este é o primeiro acesso do Administrador (usuário admin / senha admin). Conforme a regra de segurança, defina uma nova senha para continuar.';
-        } else {
-          desc.textContent = 'Sua senha foi redefinida pelo administrador para a senha temporária 1234. Por favor, crie uma nova senha pessoal agora.';
-        }
-        modal.classList.remove('hidden');
-      }
-
-      async function handleForcePasswordSubmit(e) {
-        e.preventDefault();
-        var newPass = document.getElementById('forceNewPass').value;
-        var confirmPass = document.getElementById('forceConfirmPass').value;
-
-        if (newPass.length < 3) {
-          showToast('A nova senha deve ter pelo menos 3 caracteres.', 'error');
-          return;
-        }
-        if (newPass === 'admin' || newPass === '1234') {
-          showToast('Escolha uma senha diferente da senha temporária padrão.', 'error');
-          return;
-        }
-        if (newPass !== confirmPass) {
-          showToast('A confirmação de senha não confere.', 'error');
-          return;
-        }
-
-        state.currentUser.senha = newPass;
-        state.currentUser.must_change_password = false;
-        state.currentUser.reset_requested = false;
-        await syncUserToSupabase(state.currentUser);
-
-        document.getElementById('forcePasswordForm').reset();
-        document.getElementById('forcePasswordModal').classList.add('hidden');
-        showToast('Senha atualizada com sucesso!', 'success');
-      }
-
-      async function handleRegisterSubmit(e) {
-        e.preventDefault();
-        var nome = document.getElementById('regNome').value.trim();
-        var sobrenome = document.getElementById('regSobrenome').value.trim();
-        var sexo = document.getElementById('regSexo').value;
-        var telefone = document.getElementById('regTelefone').value.trim();
-        var email = document.getElementById('regEmail').value.trim().toLowerCase();
-        var cep = document.getElementById('regCep').value.trim();
-        var rua = document.getElementById('regRua').value.trim();
-        var bairro = document.getElementById('regBairro').value.trim();
-        var cidade = document.getElementById('regCidade').value.trim();
-        var estado = document.getElementById('regEstado').value.trim().toUpperCase();
-        var numero = document.getElementById('regNumero').value.trim();
-        var complemento = document.getElementById('regComplemento').value.trim();
-        var senha = document.getElementById('regSenha').value;
-        var confirma = document.getElementById('regConfirmaSenha').value;
-
-        if (senha !== confirma) {
-          showToast('A senha e a confirmação da senha não coincidem!', 'error');
-          return;
-        }
-
-        var exists = state.users.some(function(u) { return u.email.toLowerCase() === email; });
-        if (exists) {
-          showToast('Já existe um usuário cadastrado com este e-mail.', 'error');
-          return;
-        }
-
-        var initials = (nome.charAt(0) + (sobrenome.charAt(0) || '')).toUpperCase();
-        var avatar = state.regPhotoDataUrl || createAvatarSvg(initials, '#B45309');
-
-        var newUser = {
-          id: 'usr_' + Date.now(),
-          username: email.split('@')[0],
-          nome: nome,
-          sobrenome: sobrenome,
-          sexo: sexo,
-          telefone: telefone,
-          email: email,
-          cep: cep,
-          rua: rua,
-          bairro: bairro,
-          cidade: cidade,
-          estado: estado,
-          numero: numero,
-          complemento: complemento,
-          foto_perfil: avatar,
-          senha: senha,
-          is_admin: false,
-          must_change_password: false,
-          reset_requested: false,
-          created_at: new Date().toISOString()
-        };
-
-        state.users.push(newUser);
-        await syncUserToSupabase(newUser);
-
-        document.getElementById('registerForm').reset();
-        state.regPhotoDataUrl = createAvatarSvg('NV', '#78716C');
-        document.getElementById('regPhotoPreview').src = state.regPhotoDataUrl;
-
-        showToast('Cadastro concluído! Faça login com seu e-mail e senha.', 'success');
-        document.getElementById('loginIdentifier').value = email;
-        showView('view-login');
-      }
-
-      // --- FORGOT PASSWORD & ADMIN RESET TO 1234 ---
-      async function handleForgotPasswordSubmit(e) {
-        e.preventDefault();
-        var email = document.getElementById('forgotEmailInput').value.trim().toLowerCase();
-        var user = state.users.find(function(u) { return u.email.toLowerCase() === email; });
-
-        if (!user) {
-          showToast('Nenhum usuário encontrado com este e-mail.', 'error');
-          return;
-        }
-
-        user.reset_requested = true;
-        await syncUserToSupabase(user);
-
-        document.getElementById('forgotPasswordForm').reset();
-        document.getElementById('forgotPasswordModal').classList.add('hidden');
-        updateAdminNotificationsUI();
-        showToast('Aviso enviado ao Administrador! Assim que ele aprovar, sua senha será 1234.', 'success');
-      }
-
-      function renderAdminResetsModal() {
-        var container = document.getElementById('adminResetsListContainer');
-        var pending = state.users.filter(function(u) { return u.reset_requested; });
-
-        if (pending.length === 0) {
-          container.innerHTML = '<div class="py-8 text-center text-xs text-stone-500">Nenhuma solicitação pendente no momento.</div>';
-          return;
-        }
-
-        container.innerHTML = '';
-        pending.forEach(function(u) {
-          var row = document.createElement('div');
-          row.className = 'py-3 flex items-center justify-between gap-3';
-          row.innerHTML =
-            '<div class="flex items-center gap-3">' +
-              '<img src="' + (u.foto_perfil || createAvatarSvg(u.nome.slice(0,2), '#78716C')) + '" class="w-10 h-10 rounded-full object-cover border" alt="Foto"/>' +
-              '<div>' +
-                '<div class="text-xs font-bold text-stone-900">' + escapeHtml(u.nome + ' ' + u.sobrenome) + '</div>' +
-                '<div class="text-[11px] text-stone-500">' + escapeHtml(u.email) + '</div>' +
-              '</div>' +
-            '</div>' +
-            '<button type="button" data-reset-uid="' + u.id + '" class="px-3.5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold transition">' +
-              'Resetar Senha para 1234' +
-            '</button>';
-          container.appendChild(row);
-        });
-      }
-
-      async function adminResetUserPassword(userId) {
-        var user = state.users.find(function(u) { return u.id === userId; });
-        if (!user) return;
-        user.senha = '1234';
-        user.must_change_password = true;
-        user.reset_requested = false;
-        await syncUserToSupabase(user);
-        renderAdminResetsModal();
-        updateAdminNotificationsUI();
-        renderContactsList();
-        showToast('Senha de ' + user.nome + ' resetada para 1234! Será exigida troca no próximo login.', 'success');
-      }
-
-      // --- PROFILE UPDATE ---
-      function populateProfileForm() {
-        if (!state.currentUser) return;
-        var u = state.currentUser;
-        state.profPhotoDataUrl = u.foto_perfil || createAvatarSvg(u.nome.slice(0, 2), '#B45309');
-        document.getElementById('profPhotoPreview').src = state.profPhotoDataUrl;
-        document.getElementById('profNome').value = u.nome || '';
-        document.getElementById('profSobrenome').value = u.sobrenome || '';
-        document.getElementById('profSexo').value = u.sexo || 'Masculino';
-        document.getElementById('profTelefone').value = u.telefone || '';
-        document.getElementById('profEmail').value = u.email || '';
-        document.getElementById('profCep').value = u.cep || '';
-        document.getElementById('profRua').value = u.rua || '';
-        document.getElementById('profBairro').value = u.bairro || '';
-        document.getElementById('profCidade').value = u.cidade || '';
-        document.getElementById('profEstado').value = u.estado || '';
-        document.getElementById('profNumero').value = u.numero || '';
-        document.getElementById('profComplemento').value = u.complemento || '';
-        document.getElementById('profNovaSenha').value = '';
-        document.getElementById('profConfirmaSenha').value = '';
-      }
-
-      async function handleProfileSubmit(e) {
-        e.preventDefault();
-        if (!state.currentUser) return;
-        var novaSenha = document.getElementById('profNovaSenha').value;
-        var confirmaSenha = document.getElementById('profConfirmaSenha').value;
-
-        if (novaSenha && novaSenha !== confirmaSenha) {
-          showToast('A confirmação da nova senha não confere.', 'error');
-          return;
-        }
-
-        var u = state.currentUser;
-        u.nome = document.getElementById('profNome').value.trim();
-        u.sobrenome = document.getElementById('profSobrenome').value.trim();
-        u.sexo = document.getElementById('profSexo').value;
-        u.telefone = document.getElementById('profTelefone').value.trim();
-        u.email = document.getElementById('profEmail').value.trim();
-        u.cep = document.getElementById('profCep').value.trim();
-        u.rua = document.getElementById('profRua').value.trim();
-        u.bairro = document.getElementById('profBairro').value.trim();
-        u.cidade = document.getElementById('profCidade').value.trim();
-        u.estado = document.getElementById('profEstado').value.trim().toUpperCase();
-        u.numero = document.getElementById('profNumero').value.trim();
-        u.complemento = document.getElementById('profComplemento').value.trim();
-        if (state.profPhotoDataUrl) u.foto_perfil = state.profPhotoDataUrl;
-        if (novaSenha) u.senha = novaSenha;
-
-        // Also update author name/gender on user's existing prayers
-        state.prayers.forEach(function(p) {
-          if (p.user_id === u.id) {
-            p.nome = u.nome;
-            p.sobrenome = u.sobrenome;
-            p.sexo = u.sexo;
-          }
-        });
-
-        await syncUserToSupabase(u);
-        updateAuthUI();
-        showToast('Seus dados de perfil foram atualizados!', 'success');
-        showView('view-dashboard');
-      }
-
-      // --- CONTACTS LIST & ADMIN USER MANAGEMENT ---
-      function formatFullAddress(u) {
-        var parts = [];
-        if (u.rua) parts.push(u.rua + (u.numero ? ', ' + u.numero : ''));
-        if (u.complemento) parts.push(u.complemento);
-        if (u.bairro) parts.push(u.bairro);
-        if (u.cidade || u.estado) parts.push((u.cidade || '') + (u.estado ? ' - ' + u.estado : ''));
-        if (u.cep) parts.push('CEP ' + u.cep);
-        return parts.join(', ') || 'Endereço não informado';
-      }
-
-      function cleanPhoneForWhatsApp(phone) {
-        var digits = (phone || '').replace(/\D/g, '');
-        if (!digits) return '';
-        if (digits.length <= 11 && !digits.startsWith('55')) {
-          return '55' + digits;
-        }
-        return digits;
-      }
-
-      function renderContactsList() {
-        var container = document.getElementById('contactsListContainer');
-        var query = (document.getElementById('contactsSearchInput').value || '').trim().toLowerCase();
-        var isAdmin = state.currentUser && state.currentUser.is_admin;
-
-        var filtered = state.users.filter(function(u) {
-          if (!query) return true;
-          var full = (u.nome + ' ' + u.sobrenome + ' ' + (u.cidade || '') + ' ' + (u.email || '')).toLowerCase();
-          return full.indexOf(query) !== -1;
-        });
-
-        if (filtered.length === 0) {
-          container.innerHTML = '<div class="py-10 text-center text-sm text-stone-500">Nenhuma pessoa encontrada.</div>';
-          return;
-        }
-
-        container.innerHTML = '';
-        filtered.forEach(function(u) {
-          var waNumber = cleanPhoneForWhatsApp(u.telefone);
-          var waHref = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent('A Paz, ' + u.nome + '! Tudo bem?');
-          var mailHref = 'mailto:' + encodeURIComponent(u.email || '');
-          var fullAddr = formatFullAddress(u);
-          var avatarSrc = u.foto_perfil || createAvatarSvg((u.nome.charAt(0) + (u.sobrenome.charAt(0) || '')), '#78716C');
-
-          var adminControlsHtml = '';
-          if (isAdmin) {
-            var promoteBtnLabel = u.is_admin ? '👑 Já é Admin' : '⬆️ Promover a Admin';
-            var promoteBtnDisabled = u.is_admin ? 'disabled opacity-50 cursor-not-allowed' : 'hover:bg-amber-100';
-            adminControlsHtml =
-              '<div class="flex flex-wrap items-center gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 mt-2 sm:mt-0">' +
-                '<button type="button" data-action="promote-user" data-uid="' + u.id + '" ' + (u.is_admin ? 'disabled' : '') + ' class="px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold transition ' + promoteBtnDisabled + '">' +
-                  promoteBtnLabel +
-                '</button>' +
-                (u.reset_requested ? '<button type="button" data-action="reset-pass-user" data-uid="' + u.id + '" class="px-2.5 py-1.5 rounded-lg bg-red-600 text-white text-[11px] font-semibold hover:bg-red-700 transition">🔑 Resetar Senha (1234)</button>' : '') +
-                '<button type="button" data-action="edit-user" data-uid="' + u.id + '" class="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-semibold transition">' +
-                  '✏️ Editar' +
-                '</button>' +
-                (u.id !== state.currentUser.id ? '<button type="button" data-action="delete-user" data-uid="' + u.id + '" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-semibold transition">🗑️ Excluir</button>' : '') +
-              '</div>';
-          }
-
-          var item = document.createElement('div');
-          item.className = 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4';
-          item.innerHTML =
-            '<div class="flex items-center gap-3.5">' +
-              '<img src="' + avatarSrc + '" alt="Foto de ' + escapeHtml(u.nome) + '" class="w-14 h-14 rounded-full object-cover border-2 border-amber-500/60 bg-stone-100 flex-shrink-0" />' +
-              '<div>' +
-                '<div class="flex items-center gap-2 flex-wrap">' +
-                  '<span class="font-bold text-stone-900 text-base">' + escapeHtml(u.nome + ' ' + u.sobrenome) + '</span>' +
-                  (u.is_admin ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">Admin</span>' : '') +
-                  '<span class="text-[11px] text-stone-400">(' + escapeHtml(u.sexo) + ')</span>' +
-                '</div>' +
-                '<div class="text-xs text-stone-500 mt-0.5">' + escapeHtml(u.telefone) + ' • ' + escapeHtml(u.email) + '</div>' +
-                '<div class="text-xs text-stone-500 mt-0.5">📍 ' + escapeHtml(fullAddr) + '</div>' +
-              '</div>' +
-            '</div>' +
-            '<div class="flex flex-col sm:items-end gap-2">' +
-              '<!-- Action Icons: WhatsApp, Email, Maps (Google Maps / Waze) -->' +
-              '<div class="flex items-center gap-2">' +
-                '<a href="' + waHref + '" target="_blank" rel="noopener noreferrer" class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition flex items-center gap-1.5 text-xs font-semibold" title="Conversar no WhatsApp">' +
-                  '<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/></svg>' +
-                  '<span>WhatsApp</span>' +
-                '</a>' +
-                '<a href="' + mailHref + '" class="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition flex items-center gap-1.5 text-xs font-semibold" title="Enviar E-mail">' +
-                  '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' +
-                  '<span>E-mail</span>' +
-                '</a>' +
-                '<button type="button" data-action="open-maps" data-uid="' + u.id + '" class="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition flex items-center gap-1.5 text-xs font-semibold" title="Abrir no Google Maps ou Waze">' +
-                  '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' +
-                  '<span>Maps / Waze</span>' +
-                '</button>' +
-              '</div>' +
-              adminControlsHtml +
-            '</div>';
-          container.appendChild(item);
-        });
-      }
-
-      function openMapsModalForUser(userId) {
-        var u = state.users.find(function(x) { return x.id === userId; });
-        if (!u) return;
-        var addr = formatFullAddress(u);
-        document.getElementById('mapsModalPersonName').textContent = u.nome + ' ' + u.sobrenome;
-        document.getElementById('mapsModalAddressText').textContent = addr;
-
-        var encoded = encodeURIComponent(addr);
-        document.getElementById('openGoogleMapsLink').href = 'https://www.google.com/maps/search/?api=1&query=' + encoded;
-        document.getElementById('openWazeLink').href = 'https://waze.com/ul?q=' + encoded + '&navigate=yes';
-        document.getElementById('mapsChoiceModal').classList.remove('hidden');
-      }
-
-      // --- REGISTER NEW PRAYER REQUEST ---
-      function prepareNewPrayerView() {
-        if (!state.currentUser) return;
-        document.getElementById('newPrayerAuthorName').textContent = state.currentUser.nome + ' ' + state.currentUser.sobrenome;
-        document.getElementById('newPrayerTimestampPreview').textContent = formatDateTimeBR(new Date().toISOString());
-      }
-
-      async function handleNewPrayerSubmit(e) {
-        e.preventDefault();
-        if (!state.currentUser) return;
-        var text = document.getElementById('prayerTextInput').value.trim();
-        if (!text) return;
-
-        var newPrayer = {
-          id: 'ped_' + Date.now(),
-          user_id: state.currentUser.id,
-          nome: state.currentUser.nome,
-          sobrenome: state.currentUser.sobrenome,
-          sexo: state.currentUser.sexo || 'Masculino',
-          pedido: text,
-          created_at: new Date().toISOString()
-        };
-
-        state.prayers.unshift(newPrayer);
-        await syncPrayerToSupabase(newPrayer);
-
-        document.getElementById('newPrayerForm').reset();
-        showToast('Pedido de oração registrado com sucesso!', 'success');
-        showView('view-prayers');
-      }
-
-      // --- PRAYERS LIST, FILTERS & WHATSAPP EXPORT ---
-      function getFilteredPrayers() {
-        var fWeek = document.getElementById('filterWeek').checked;
-        var fMonth = document.getElementById('filterMonth').checked;
-        var fMale = document.getElementById('filterMale').checked;
-        var fFemale = document.getElementById('filterFemale').checked;
-
-        var nowTime = new Date();
-        var sevenDaysAgoTime = nowTime.getTime() - (7 * 24 * 60 * 60 * 1000);
-        var currentMonth = nowTime.getMonth();
-        var currentYear = nowTime.getFullYear();
-
-        return state.prayers.filter(function(p) {
-          var pDate = new Date(p.created_at);
-
-          // Date filters:
-          // If both Week and Month are checked, Week is stricter or union; let's check:
-          // When user checks "Pedidos da Semana", filter within last 7 days.
-          // When user checks "Pedidos do Mês", filter within current month.
-          if (fWeek) {
-            if (pDate.getTime() < sevenDaysAgoTime) return false;
-          }
-          if (fMonth) {
-            if (pDate.getMonth() !== currentMonth || pDate.getFullYear() !== currentYear) return false;
-          }
-
-          // Gender filters (if only Male is checked -> Masculino; if only Female -> Feminino; if both or neither -> both)
-          if (fMale && !fFemale) {
-            if (p.sexo !== 'Masculino') return false;
-          } else if (fFemale && !fMale) {
-            if (p.sexo !== 'Feminino') return false;
-          }
-
-          return true;
-        });
-      }
-
-      function renderPrayersList() {
-        var container = document.getElementById('prayersListContainer');
-        var statusEl = document.getElementById('prayersFilteredStatus');
-        var list = getFilteredPrayers();
-
-        statusEl.textContent = 'Exibindo ' + list.length + ' de ' + state.prayers.length + ' pedido(s) registrado(s)';
-
-        if (list.length === 0) {
-          container.innerHTML =
-            '<div class="p-10 rounded-2xl bg-stone-50 border border-stone-200 text-center space-y-2">' +
-              '<div class="text-2xl">🕊️</div>' +
-              '<div class="text-sm font-bold text-stone-800">Nenhum pedido encontrado com os filtros selecionados</div>' +
-              '<p class="text-xs text-stone-500">Experimente limpar os filtros ou registrar um novo pedido de oração.</p>' +
-            '</div>';
-          return;
-        }
-
-        container.innerHTML = '';
-        list.forEach(function(p) {
-          var canManage = state.currentUser && (state.currentUser.is_admin || state.currentUser.id === p.user_id);
-          var genderBadge = p.sexo === 'Feminino'
-            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">Feminino</span>'
-            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">Masculino</span>';
-
-          var actionsHtml = '';
-          if (canManage) {
-            actionsHtml =
-              '<div class="flex items-center gap-2">' +
-                '<button type="button" data-action="edit-prayer" data-pid="' + p.id + '" class="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition">✏️ Editar</button>' +
-                '<button type="button" data-action="delete-prayer" data-pid="' + p.id + '" class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold transition">🗑️ Excluir</button>' +
-              '</div>';
-          } else {
-            actionsHtml = '<span class="text-[11px] text-stone-400 italic">Somente visualização</span>';
-          }
-
-          var card = document.createElement('div');
-          card.className = 'p-5 rounded-2xl bg-stone-50/70 hover:bg-stone-50 border border-stone-200 transition space-y-3';
-          card.innerHTML =
-            '<div class="flex flex-wrap items-center justify-between gap-2">' +
-              '<div class="flex items-center gap-2">' +
-                '<span class="font-bold text-stone-900 text-sm">' + escapeHtml(p.nome + ' ' + p.sobrenome) + '</span>' +
-                genderBadge +
-              '</div>' +
-              '<div class="text-xs text-stone-500 font-mono">📅 ' + formatDateTimeBR(p.created_at) + '</div>' +
-            '</div>' +
-            '<p class="text-sm text-stone-800 leading-relaxed whitespace-pre-line bg-white p-4 rounded-xl border border-stone-200/80">' +
-              escapeHtml(p.pedido) +
-            '</p>' +
-            '<div class="flex items-center justify-between pt-1">' +
-              '<span class="text-[11px] text-stone-500">Registrado por ' + escapeHtml(p.nome + ' ' + p.sobrenome) + '</span>' +
-              actionsHtml +
-            '</div>';
-          container.appendChild(card);
-        });
-      }
-
-      function exportPrayersToWhatsApp() {
-        var list = getFilteredPrayers();
-        if (list.length === 0) {
-          showToast('Não há pedidos na lista atual para exportar.', 'warning');
-          return;
-        }
-
-        var lines = ['🙏 *LISTA DE PEDIDOS DE ORAÇÃO* 🙏', ''];
-        list.forEach(function(p, idx) {
-          lines.push(
-            '*' + (idx + 1) + '. ' + p.nome + ' ' + p.sobrenome + '* (' + formatDateTimeBR(p.created_at) + '):'
-          );
-          lines.push('"' + p.pedido + '"');
-          lines.push('');
-        });
-
-        var message = lines.join('\n');
-        var waUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
-        window.open(waUrl, '_blank', 'noopener,noreferrer');
-      }
-
-      // --- HELPERS ---
-      function formatDateTimeBR(isoStr) {
-        try {
-          var d = new Date(isoStr);
-          var dia = String(d.getDate()).padStart(2, '0');
-          var mes = String(d.getMonth() + 1).padStart(2, '0');
-          var ano = d.getFullYear();
-          var hora = String(d.getHours()).padStart(2, '0');
-          var min = String(d.getMinutes()).padStart(2, '0');
-          return dia + '/' + mes + '/' + ano + ' às ' + hora + ':' + min;
-        } catch (e) {
-          return isoStr;
-        }
-      }
-
-      function escapeHtml(str) {
-        return String(str || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
-
-      // --- EVENT LISTENERS BINDING ---
-      function bindEvents() {
-        // Brand Logo click
-        document.getElementById('brandLogoBtn').addEventListener('click', function() {
-          if (state.currentUser) {
-            showView('view-dashboard');
-          } else {
-            showView('view-landing');
-          }
-        });
-
-        // Landing buttons
-        document.getElementById('goToLoginBtn').addEventListener('click', function() { showView('view-login'); });
-        document.getElementById('goToRegisterBtn').addEventListener('click', function() {
-          document.getElementById('regPhotoPreview').src = state.regPhotoDataUrl;
-          showView('view-register');
-        });
-
-        // Navigation back/switch buttons
-        document.getElementById('backFromLoginBtn').addEventListener('click', function() { showView('view-landing'); });
-        document.getElementById('backFromRegisterBtn').addEventListener('click', function() { showView('view-landing'); });
-        document.getElementById('switchToRegisterBtn').addEventListener('click', function() {
-          document.getElementById('regPhotoPreview').src = state.regPhotoDataUrl;
-          showView('view-register');
-        });
-        document.getElementById('switchToLoginFromRegBtn').addEventListener('click', function() { showView('view-login'); });
-
-        // Quick demo login buttons
-        document.getElementById('quickLoginAdminBtn').addEventListener('click', function() {
-          var adminUser = state.users.find(function(u) { return u.username === 'admin'; });
-          document.getElementById('loginIdentifier').value = 'admin';
-          document.getElementById('loginPassword').value = adminUser ? adminUser.senha : 'admin';
-        });
-        document.getElementById('quickLoginMemberBtn').addEventListener('click', function() {
-          var maria = state.users.find(function(u) { return u.email === 'maria@exemplo.com'; });
-          document.getElementById('loginIdentifier').value = 'maria@exemplo.com';
-          document.getElementById('loginPassword').value = maria ? maria.senha : '123456';
-        });
-
-        // Forms
-        document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
-        document.getElementById('registerForm').addEventListener('submit', handleRegisterSubmit);
-        document.getElementById('profileForm').addEventListener('submit', handleProfileSubmit);
-        document.getElementById('newPrayerForm').addEventListener('submit', handleNewPrayerSubmit);
-        document.getElementById('forcePasswordForm').addEventListener('submit', handleForcePasswordSubmit);
-        document.getElementById('forgotPasswordForm').addEventListener('submit', handleForgotPasswordSubmit);
-
-        // CEP Lookup triggers
-        document.getElementById('regCep').addEventListener('blur', function(e) { lookupCep(e.target.value, 'reg'); });
-        document.getElementById('regSearchCepBtn').addEventListener('click', function() {
-          lookupCep(document.getElementById('regCep').value, 'reg');
-        });
-        document.getElementById('profCep').addEventListener('blur', function(e) { lookupCep(e.target.value, 'prof'); });
-        document.getElementById('profSearchCepBtn').addEventListener('click', function() {
-          lookupCep(document.getElementById('profCep').value, 'prof');
-        });
-
-        // Photo Inputs
-        document.getElementById('regPhotoGalleryInput').addEventListener('change', function(e) {
-          handleImageFileInput(e.target.files[0], 'register');
-        });
-        document.getElementById('regPhotoCameraInput').addEventListener('change', function(e) {
-          handleImageFileInput(e.target.files[0], 'register');
-        });
-        document.getElementById('profPhotoGalleryInput').addEventListener('change', function(e) {
-          handleImageFileInput(e.target.files[0], 'profile');
-        });
-        document.getElementById('profPhotoCameraInput').addEventListener('change', function(e) {
-          handleImageFileInput(e.target.files[0], 'profile');
-        });
-
-        // Webcam Modal
-        document.getElementById('openWebcamModalRegBtn').addEventListener('click', function() { openWebcamModal('register'); });
-        document.getElementById('openWebcamModalProfBtn').addEventListener('click', function() { openWebcamModal('profile'); });
-        document.getElementById('closeWebcamModalBtn').addEventListener('click', closeWebcamModal);
-        document.getElementById('cancelWebcamBtn').addEventListener('click', closeWebcamModal);
-        document.getElementById('captureWebcamBtn').addEventListener('click', captureWebcamPhoto);
-
-        // Logged-in Header & 4 Main Dashboard Buttons
-        document.getElementById('topProfileBtn').addEventListener('click', function() { showView('view-profile'); });
-        document.getElementById('dashProfileCardBtn').addEventListener('click', function() { showView('view-profile'); });
-        document.getElementById('navToContactsBtn').addEventListener('click', function() { showView('view-contacts'); });
-        document.getElementById('navToNewPrayerBtn').addEventListener('click', function() { showView('view-new-prayer'); });
-        document.getElementById('navToPrayerListBtn').addEventListener('click', function() { showView('view-prayers'); });
-
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-          state.currentUser = null;
-          safeSetStorage(STORAGE_KEYS.SESSION, null);
-          updateAuthUI();
-          showToast('Você saiu da sua conta.', 'success');
-          showView('view-landing');
-        });
-
-        // Back buttons inside Logged-in Subpages
-        document.getElementById('backFromProfileBtn').addEventListener('click', function() { showView('view-dashboard'); });
-        document.getElementById('backFromContactsBtn').addEventListener('click', function() { showView('view-dashboard'); });
-        document.getElementById('backFromNewPrayerBtn').addEventListener('click', function() { showView('view-dashboard'); });
-        document.getElementById('cancelNewPrayerBtn').addEventListener('click', function() { showView('view-dashboard'); });
-        document.getElementById('backFromPrayersBtn').addEventListener('click', function() { showView('view-dashboard'); });
-        document.getElementById('quickAddPrayerFromListBtn').addEventListener('click', function() { showView('view-new-prayer'); });
-
-        // Forgot Password Modal
-        document.getElementById('forgotPasswordBtn').addEventListener('click', function() {
-          document.getElementById('forgotPasswordModal').classList.remove('hidden');
-        });
-        document.getElementById('closeForgotModalBtn').addEventListener('click', function() {
-          document.getElementById('forgotPasswordModal').classList.add('hidden');
-        });
-        document.getElementById('cancelForgotModalBtn').addEventListener('click', function() {
-          document.getElementById('forgotPasswordModal').classList.add('hidden');
-        });
-
-        // Admin Notifications Modal
-        document.getElementById('adminNotifBtn').addEventListener('click', function() {
-          renderAdminResetsModal();
-          document.getElementById('adminResetsModal').classList.remove('hidden');
-        });
-        document.getElementById('openAdminResetsModalBtn').addEventListener('click', function() {
-          renderAdminResetsModal();
-          document.getElementById('adminResetsModal').classList.remove('hidden');
-        });
-        document.getElementById('closeAdminResetsModalBtn').addEventListener('click', function() {
-          document.getElementById('adminResetsModal').classList.add('hidden');
-        });
-        document.getElementById('closeAdminResetsFooterBtn').addEventListener('click', function() {
-          document.getElementById('adminResetsModal').classList.add('hidden');
-        });
-        document.getElementById('adminResetsListContainer').addEventListener('click', function(e) {
-          var btn = e.target.closest('[data-reset-uid]');
-          if (btn) {
-            adminResetUserPassword(btn.getAttribute('data-reset-uid'));
-          }
-        });
-
-        // Contacts Search & Delegated Actions
-        document.getElementById('contactsSearchInput').addEventListener('input', renderContactsList);
-        document.getElementById('contactsListContainer').addEventListener('click', async function(e) {
-          var btn = e.target.closest('[data-action]');
-          if (!btn) return;
-          var action = btn.getAttribute('data-action');
-          var uid = btn.getAttribute('data-uid');
-          var targetUser = state.users.find(function(u) { return u.id === uid; });
-          if (!targetUser) return;
-
-          if (action === 'open-maps') {
-            openMapsModalForUser(uid);
-          } else if (action === 'promote-user') {
-            targetUser.is_admin = true;
-            await syncUserToSupabase(targetUser);
-            renderContactsList();
-            showToast(targetUser.nome + ' agora é Administrador(a)!', 'success');
-          } else if (action === 'reset-pass-user') {
-            adminResetUserPassword(uid);
-          } else if (action === 'edit-user') {
-            openAdminEditUserModal(targetUser);
-          } else if (action === 'delete-user') {
-            openConfirmDeleteModal('user', targetUser.id, 'Deseja realmente excluir o cadastro de ' + targetUser.nome + ' ' + targetUser.sobrenome + '?');
-          }
-        });
-
-        // Maps Modal Close
-        document.getElementById('closeMapsModalBtn').addEventListener('click', function() {
-          document.getElementById('mapsChoiceModal').classList.add('hidden');
-        });
-
-        // Admin Edit User Modal
-        document.getElementById('closeAdminEditUserModalBtn').addEventListener('click', function() {
-          document.getElementById('adminEditUserModal').classList.add('hidden');
-        });
-        document.getElementById('cancelAdminEditUserBtn').addEventListener('click', function() {
-          document.getElementById('adminEditUserModal').classList.add('hidden');
-        });
-        document.getElementById('adminEditUserForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          var uid = document.getElementById('adminEditUserId').value;
-          var u = state.users.find(function(item) { return item.id === uid; });
-          if (!u) return;
-          u.nome = document.getElementById('adminEditNome').value.trim();
-          u.sobrenome = document.getElementById('adminEditSobrenome').value.trim();
-          u.sexo = document.getElementById('adminEditSexo').value;
-          u.telefone = document.getElementById('adminEditTelefone').value.trim();
-          u.email = document.getElementById('adminEditEmail').value.trim();
-          u.cep = document.getElementById('adminEditCep').value.trim();
-          u.rua = document.getElementById('adminEditRua').value.trim();
-          u.numero = document.getElementById('adminEditNumero').value.trim();
-          u.bairro = document.getElementById('adminEditBairro').value.trim();
-          u.cidade = document.getElementById('adminEditCidade').value.trim();
-          u.estado = document.getElementById('adminEditEstado').value.trim().toUpperCase();
-
-          await syncUserToSupabase(u);
-          document.getElementById('adminEditUserModal').classList.add('hidden');
-          renderContactsList();
-          showToast('Dados do usuário atualizados pelo Administrador.', 'success');
-        });
-
-        // Prayers Filters & Actions
-        ['filterWeek', 'filterMonth', 'filterMale', 'filterFemale'].forEach(function(id) {
-          document.getElementById(id).addEventListener('change', renderPrayersList);
-        });
-        document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-          document.getElementById('filterWeek').checked = false;
-          document.getElementById('filterMonth').checked = false;
-          document.getElementById('filterMale').checked = false;
-          document.getElementById('filterFemale').checked = false;
-          renderPrayersList();
-        });
-        document.getElementById('exportWhatsAppBtn').addEventListener('click', exportPrayersToWhatsApp);
-
-        document.getElementById('prayersListContainer').addEventListener('click', function(e) {
-          var btn = e.target.closest('[data-action]');
-          if (!btn) return;
-          var action = btn.getAttribute('data-action');
-          var pid = btn.getAttribute('data-pid');
-          var prayer = state.prayers.find(function(p) { return p.id === pid; });
-          if (!prayer) return;
-
-          if (action === 'edit-prayer') {
-            document.getElementById('editPrayerIdInput').value = prayer.id;
-            document.getElementById('editPrayerTextarea').value = prayer.pedido;
-            document.getElementById('editPrayerModal').classList.remove('hidden');
-          } else if (action === 'delete-prayer') {
-            openConfirmDeleteModal('prayer', prayer.id, 'Tem certeza que deseja excluir este pedido de oração de ' + prayer.nome + '?');
-          }
-        });
-
-        // Edit Prayer Modal
-        document.getElementById('closeEditPrayerModalBtn').addEventListener('click', function() {
-          document.getElementById('editPrayerModal').classList.add('hidden');
-        });
-        document.getElementById('cancelEditPrayerBtn').addEventListener('click', function() {
-          document.getElementById('editPrayerModal').classList.add('hidden');
-        });
-        document.getElementById('editPrayerForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          var pid = document.getElementById('editPrayerIdInput').value;
-          var text = document.getElementById('editPrayerTextarea').value.trim();
-          var prayer = state.prayers.find(function(p) { return p.id === pid; });
-          if (!prayer || !text) return;
-          prayer.pedido = text;
-          await syncPrayerToSupabase(prayer);
-          document.getElementById('editPrayerModal').classList.add('hidden');
-          renderPrayersList();
-          showToast('Pedido de oração atualizado!', 'success');
-        });
-
-        // Confirm Delete Modal
-        document.getElementById('cancelDeleteModalBtn').addEventListener('click', function() {
-          state.pendingDelete = null;
-          document.getElementById('confirmDeleteModal').classList.add('hidden');
-        });
-        document.getElementById('confirmDeleteActionBtn').addEventListener('click', async function() {
-          if (!state.pendingDelete) return;
-          var type = state.pendingDelete.type;
-          var id = state.pendingDelete.id;
-          document.getElementById('confirmDeleteModal').classList.add('hidden');
-
-          if (type === 'prayer') {
-            state.prayers = state.prayers.filter(function(p) { return p.id !== id; });
-            await deletePrayerFromSupabase(id);
-            renderPrayersList();
-            showToast('Pedido de oração excluído.', 'success');
-          } else if (type === 'user') {
-            state.users = state.users.filter(function(u) { return u.id !== id; });
-            state.prayers = state.prayers.filter(function(p) { return p.user_id !== id; });
-            await deleteUserFromSupabase(id);
-            renderContactsList();
-            showToast('Usuário excluído com sucesso.', 'success');
-          }
-          state.pendingDelete = null;
-        });
-
-        // Supabase Config Modal
-        document.getElementById('openSupabaseModalBtn').addEventListener('click', function() {
-          var cfg = getActiveSupabaseCredentials() || {};
-          document.getElementById('sbUrlInput').value = cfg.url || '';
-          document.getElementById('sbKeyInput').value = cfg.key || '';
-          document.getElementById('supabaseConfigModal').classList.remove('hidden');
-        });
-        document.getElementById('closeSupabaseModalBtn').addEventListener('click', function() {
-          document.getElementById('supabaseConfigModal').classList.add('hidden');
-        });
-        var sbUrlInput = document.getElementById('sbUrlInput');
-        if (sbUrlInput) {
-          sbUrlInput.addEventListener('blur', function() {
-            if (this.value) {
-              this.value = sanitizeSupabaseUrl(this.value);
-            }
-          });
-        }
-        document.getElementById('supabaseConfigForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          var rawUrl = document.getElementById('sbUrlInput').value;
-          var url = sanitizeSupabaseUrl(rawUrl);
-          var key = document.getElementById('sbKeyInput').value.trim();
-          document.getElementById('sbUrlInput').value = url;
-          if (!url || !key) {
-            showToast('Preencha a URL e a Anon Key do Supabase.', 'error');
-            return;
-          }
-          safeSetStorage(STORAGE_KEYS.SB_CONFIG, { url: url, key: key });
-          var ok = await connectSupabase(url, key, false);
-          if (ok) {
-            document.getElementById('supabaseConfigModal').classList.add('hidden');
-          }
-        });
-        document.getElementById('syncNowSupabaseBtn').addEventListener('click', async function() {
-          var rawUrl = document.getElementById('sbUrlInput').value;
-          var url = sanitizeSupabaseUrl(rawUrl);
-          var key = document.getElementById('sbKeyInput').value.trim();
-          document.getElementById('sbUrlInput').value = url;
-          if (!url || !key) {
-            showToast('Preencha a URL e a Anon Key do Supabase antes de testar.', 'warning');
-            return;
-          }
-          safeSetStorage(STORAGE_KEYS.SB_CONFIG, { url: url, key: key });
-          await connectSupabase(url, key, false);
-        });
-        document.getElementById('downloadConfiguredHtmlBtn').addEventListener('click', function() {
-          var rawUrl = document.getElementById('sbUrlInput').value;
-          var url = sanitizeSupabaseUrl(rawUrl);
-          var key = document.getElementById('sbKeyInput').value.trim();
-          document.getElementById('sbUrlInput').value = url;
-          if (!url || !key) {
-            showToast('Preencha sua Supabase URL e Anon Key nos campos acima antes de baixar o index.html.', 'warning');
-            return;
-          }
-          safeSetStorage(STORAGE_KEYS.SB_CONFIG, { url: url, key: key });
-          var fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-          fullHtml = fullHtml.replace(
-            /var EMBEDDED_SUPABASE_CONFIG = \{[\s\S]*?\};/,
-            "var EMBEDDED_SUPABASE_CONFIG = {\n        url: '" + url.replace(/'/g, "\\'") + "',\n        key: '" + key.replace(/'/g, "\\'") + "'\n      };"
-          );
-          var blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'index.html';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          showToast('Arquivo index.html baixado já com sua conexão gravada! Envie-o para o seu GitHub.', 'success');
-        });
-        document.getElementById('disconnectSupabaseBtn').addEventListener('click', function() {
-          state.supabaseClient = null;
-          safeSetStorage(STORAGE_KEYS.SB_CONFIG, null);
-          document.getElementById('dbStatusBadge').className = 'inline-block w-2 h-2 rounded-full bg-emerald-500';
-          document.getElementById('dbStatusText').textContent = 'Banco de Dados Ativo (Local / Supabase)';
-          document.getElementById('supabaseConfigModal').classList.add('hidden');
-          showToast('Modo de armazenamento local ativado.', 'success');
-        });
-        document.getElementById('copySqlSchemaBtn').addEventListener('click', function() {
-          var sqlText = document.getElementById('sqlSchemaBlock').textContent;
-          var ta = document.createElement('textarea');
-          ta.value = sqlText;
-          document.body.appendChild(ta);
-          ta.select();
-          try {
-            document.execCommand('copy');
-            showToast('Script SQL copiado para a área de transferência!', 'success');
-          } catch (err) {
-            showToast('Selecione e copie o texto manualmente.', 'warning');
-          }
-          document.body.removeChild(ta);
-        });
-      }
-
-      function openAdminEditUserModal(u) {
-        document.getElementById('adminEditUserId').value = u.id;
-        document.getElementById('adminEditNome').value = u.nome || '';
-        document.getElementById('adminEditSobrenome').value = u.sobrenome || '';
-        document.getElementById('adminEditSexo').value = u.sexo || 'Masculino';
-        document.getElementById('adminEditTelefone').value = u.telefone || '';
-        document.getElementById('adminEditEmail').value = u.email || '';
-        document.getElementById('adminEditCep').value = u.cep || '';
-        document.getElementById('adminEditRua').value = u.rua || '';
-        document.getElementById('adminEditNumero').value = u.numero || '';
-        document.getElementById('adminEditBairro').value = u.bairro || '';
-        document.getElementById('adminEditCidade').value = u.cidade || '';
-        document.getElementById('adminEditEstado').value = u.estado || '';
-        document.getElementById('adminEditUserModal').classList.remove('hidden');
-      }
-
-      function openConfirmDeleteModal(type, id, message) {
-        state.pendingDelete = { type: type, id: id };
-        document.getElementById('confirmDeleteDesc').textContent = message;
-        document.getElementById('confirmDeleteModal').classList.remove('hidden');
-      }
-
-      // Start app
-      document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('regPhotoPreview').src = state.regPhotoDataUrl;
-        bindEvents();
-        initData();
-      });
-    })();
-  </script>
-
-
-</body></html>
+  <script>window.PORTAL_PAGE_MODE = 'home';</script>
+  <script src="./assets/app.js"></script>
+</body>
+</html>
