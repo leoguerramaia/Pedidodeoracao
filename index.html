@@ -1245,24 +1245,29 @@
           ${brandLogoHtml}
 
           <!-- Navegação Desktop -->
-          <nav aria-label="Navegação Principal" class="hidden lg:flex items-center gap-1 xl:gap-2">
-            <button type="button" onclick="navigateTo('home')"
-              class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'home' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
-              Início
-            </button>
-            <button type="button" onclick="${u ? "navigateTo('pedidooracao')" : "scrollToSection('secao-enviar-pedido')"}"
-              class="px-3.5 py-2 rounded-xl text-sm font-medium ${(state.route === 'pedidooracao' || state.route === 'pedidoconvidado') ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
-              Enviar pedido
-            </button>
-            <button type="button" onclick="navigateTo('acompanharpedidos')"
-              class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'acompanharpedidos' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
-              Mural de oração
-            </button>
-            <button type="button" onclick="scrollToSection('secao-sobre')"
-              class="px-3.5 py-2 rounded-xl text-sm font-medium text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60 transition">
-              Sobre
-            </button>
-            ${u ? `
+          ${!u ? `
+            <!-- Instruções PDF: na parte superior apenas Início, Criar Cadastro e Fazer Login (no botão azul) -->
+            <div class="hidden lg:flex items-center gap-2 xl:gap-3">
+              <button type="button" onclick="navigateTo('home')"
+                class="px-4 py-2 rounded-xl text-sm font-medium ${state.route === 'home' ? 'text-[#172B4D] font-bold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
+                Início
+              </button>
+              <button type="button" onclick="navigateTo('cadastro')"
+                class="px-4 py-2 rounded-xl text-sm font-medium ${state.route === 'cadastro' ? 'text-[#172B4D] font-bold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
+                Criar Cadastro
+              </button>
+              <button type="button" onclick="navigateTo('login')"
+                class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#172B4D] hover:bg-[#203653] text-white shadow-sm transition min-h-[44px] flex items-center gap-2">
+                <span>🔐</span>
+                <span>Fazer Login</span>
+              </button>
+            </div>
+          ` : `
+            <nav aria-label="Navegação Principal" class="hidden lg:flex items-center gap-1 xl:gap-2">
+              <button type="button" onclick="navigateTo('home')"
+                class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'home' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
+                Início
+              </button>
               <button type="button" onclick="navigateTo('dashboard')"
                 class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'dashboard' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
                 Painel
@@ -1275,29 +1280,21 @@
                 class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'aniversariantes' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
                 Aniversariantes
               </button>
-            ` : ""}
-          </nav>
+              <button type="button" onclick="navigateTo('acompanharpedidos')"
+                class="px-3.5 py-2 rounded-xl text-sm font-medium ${state.route === 'acompanharpedidos' ? 'text-[#172B4D] font-semibold bg-[#F3EFE6]' : 'text-[#28313D] hover:text-[#172B4D] hover:bg-[#F3EFE6]/60'} transition">
+                Mural de oração
+              </button>
+            </nav>
 
-          <!-- Ações Principais Desktop -->
-          <div class="hidden lg:flex items-center gap-2.5">
-            ${adminSupabaseBadge}
-            ${pendingResets > 0 ? `
-              <button type="button" onclick="navigateTo('contatos')"
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#F5EFE2] text-[#8C6D32] border border-[#C4A46A] hover:bg-[#EFE4CE] transition">
-                🔑 ${pendingResets} Reset(s)
-              </button>
-            ` : ""}
-
-            ${!u ? `
-              <button type="button" onclick="navigateTo('login')"
-                class="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#172B4D] hover:bg-[#F3EFE6] transition">
-                Fazer Login
-              </button>
-              <button type="button" onclick="scrollToSection('secao-enviar-pedido')"
-                class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-[#172B4D] hover:bg-[#203653] text-white shadow-sm transition min-h-[44px]">
-                Enviar pedido de oração
-              </button>
-            ` : `
+            <!-- Ações Desktop Logado -->
+            <div class="hidden lg:flex items-center gap-2.5">
+              ${adminSupabaseBadge}
+              ${pendingResets > 0 ? `
+                <button type="button" onclick="navigateTo('contatos')"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#F5EFE2] text-[#8C6D32] border border-[#C4A46A] hover:bg-[#EFE4CE] transition">
+                  🔑 ${pendingResets} Reset(s)
+                </button>
+              ` : ""}
               <button type="button" onclick="navigateTo('pedidooracao')"
                 class="px-4 py-2.5 rounded-xl text-xs xl:text-sm font-semibold bg-[#172B4D] hover:bg-[#203653] text-white shadow-sm transition">
                 Enviar pedido de oração
@@ -1312,10 +1309,10 @@
                 class="px-3 py-2 rounded-xl text-xs font-semibold text-[#B54747] hover:bg-[#B54747]/10 transition">
                 Sair
               </button>
-            `}
-          </div>
+            </div>
+          `}
 
-          <!-- Controles Mobile (Botão Menu Acessível por Teclado) -->
+          <!-- Controles Mobile -->
           <div class="flex lg:hidden items-center gap-2">
             ${userIsAdmin ? adminSupabaseBadge : ""}
             <button type="button"
@@ -1336,21 +1333,21 @@
         <!-- Menu Mobile Compacto e Acessível -->
         <div id="mobile-nav-drawer" class="${state.mobileMenuOpen ? 'block' : 'hidden'} lg:hidden bg-white border-b border-[#E8E5DE] px-4 pt-3 pb-5 shadow-lg fade-in">
           <nav aria-label="Menu Mobile" class="flex flex-col gap-1.5">
-            <button type="button" onclick="navigateTo('home')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
-              Início
-            </button>
-            <button type="button" onclick="${u ? "navigateTo('pedidooracao')" : "scrollToSection('secao-enviar-pedido')"}" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
-              Enviar pedido
-            </button>
-            <button type="button" onclick="navigateTo('acompanharpedidos')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
-              Mural de oração
-            </button>
-            <button type="button" onclick="scrollToSection('secao-sobre')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
-              Sobre
-            </button>
-
-            ${u ? `
-              <div class="my-1 border-t border-[#E8E5DE]"></div>
+            ${!u ? `
+              <!-- Conforme PDF: Início, Criar Cadastro e Fazer Login no botão azul -->
+              <button type="button" onclick="navigateTo('home')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold ${state.route === 'home' ? 'text-[#172B4D] bg-[#FAF8F3] font-bold' : 'text-[#28313D] hover:bg-[#FAF8F3]'}">
+                Início
+              </button>
+              <button type="button" onclick="navigateTo('cadastro')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold ${state.route === 'cadastro' ? 'text-[#172B4D] bg-[#FAF8F3] font-bold' : 'text-[#28313D] hover:bg-[#FAF8F3]'}">
+                Criar Cadastro
+              </button>
+              <button type="button" onclick="navigateTo('login')" class="w-full text-center px-5 py-3.5 rounded-xl text-sm font-semibold bg-[#172B4D] hover:bg-[#203653] text-white shadow-sm transition mt-1">
+                🔐 Fazer Login
+              </button>
+            ` : `
+              <button type="button" onclick="navigateTo('home')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
+                Início
+              </button>
               <button type="button" onclick="navigateTo('dashboard')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#172B4D] bg-[#FAF8F3]">
                 Painel da Área Logada
               </button>
@@ -1360,27 +1357,20 @@
               <button type="button" onclick="navigateTo('aniversariantes')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
                 🎂 Aniversariantes do Mês
               </button>
+              <button type="button" onclick="navigateTo('acompanharpedidos')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
+                Mural de oração
+              </button>
+              <button type="button" onclick="navigateTo('pedidooracao')" class="mt-2 w-full py-3.5 px-5 rounded-xl bg-[#172B4D] text-white text-sm font-semibold text-center shadow-sm">
+                Enviar pedido de oração
+              </button>
+              <div class="my-1 border-t border-[#E8E5DE]"></div>
               <button type="button" onclick="navigateTo('perfil')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#28313D] hover:bg-[#FAF8F3]">
                 👤 Meu Perfil (${esc(u.nome)})
               </button>
               <button type="button" onclick="handleLogout()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-[#B54747] hover:bg-[#B54747]/10">
                 Sair da Conta
               </button>
-            ` : `
-              <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button type="button" onclick="navigateTo('login')" class="w-full py-3 px-4 rounded-xl border border-[#E8E5DE] text-sm font-semibold text-[#172B4D] text-center">
-                  Fazer Login
-                </button>
-                <button type="button" onclick="navigateTo('cadastro')" class="w-full py-3 px-4 rounded-xl border border-[#C4A46A] bg-[#F5EFE2] text-sm font-semibold text-[#172B4D] text-center">
-                  Criar Cadastro
-                </button>
-              </div>
             `}
-
-            <button type="button" onclick="${u ? "navigateTo('pedidooracao')" : "scrollToSection('secao-enviar-pedido')"}"
-              class="mt-2 w-full py-3.5 px-5 rounded-xl bg-[#172B4D] text-white text-sm font-semibold text-center shadow-sm">
-              Enviar pedido de oração
-            </button>
           </nav>
         </div>
       `;
@@ -1820,193 +1810,277 @@
       await upsertPedidoSupabase(p);
     };
 
+    // =========================================================================
+    // SLIDESHOW DE PAISAGENS E VERSÍCULOS SOBRE O PODER DA ORAÇÃO
+    // Conforme Instruções do PDF para a Página Inicial
+    // =========================================================================
+    const PRAYER_VERSE_SLIDES = [
+      {
+        ref: "Jeremias 33:3",
+        verse: "“Clama a mim, e responder-te-ei, e anunciar-te-ei coisas grandes e firmes que não sabes.”",
+        sub: "A Promessa Divina de Resposta",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0b172a"/><stop offset="45%" stop-color="#1e3a5f"/><stop offset="80%" stop-color="#7c5835"/><stop offset="100%" stop-color="#d4af37"/></linearGradient>
+            <radialGradient id="sun1" cx="0.5" cy="0.65" r="0.4"><stop offset="0%" stop-color="#fff8db"/><stop offset="40%" stop-color="#f5d77f" stop-opacity="0.8"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></radialGradient>
+            <linearGradient id="mount1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d3748"/><stop offset="100%" stop-color="#111827"/></linearGradient>
+            <linearGradient id="mount2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a5568"/><stop offset="100%" stop-color="#1a202c"/></linearGradient>
+            <linearGradient id="mount3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#718096" stop-opacity="0.6"/><stop offset="100%" stop-color="#2d3748"/></linearGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky1)"/>
+          <circle cx="500" cy="310" r="160" fill="url(#sun1)"/>
+          <path d="M0 380 L180 260 L360 350 L520 230 L720 360 L880 250 L1000 330 L1000 500 L0 500 Z" fill="url(#mount3)"/>
+          <path d="M0 410 L220 310 L430 380 L620 290 L810 400 L1000 320 L1000 500 L0 500 Z" fill="url(#mount2)"/>
+          <path d="M0 450 L140 370 L340 430 L550 350 L770 440 L930 380 L1000 420 L1000 500 L0 500 Z" fill="url(#mount1)"/>
+          <path d="M320 180 Q328 172 336 180 Q344 172 352 180" fill="none" stroke="#FAF8F3" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <path d="M680 160 Q686 154 692 160 Q698 154 704 160" fill="none" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+        </svg>`
+      },
+      {
+        ref: "Mateus 21:22",
+        verse: "“E tudo o que pedirdes na oração, crendo, o recebereis.”",
+        sub: "O Poder Transformador da Fé",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0d1b2a"/><stop offset="50%" stop-color="#1b3a4b"/><stop offset="100%" stop-color="#415a77"/></linearGradient>
+            <linearGradient id="beam2" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fdfcdc" stop-opacity="0.45"/><stop offset="100%" stop-color="#fdfcdc" stop-opacity="0.0"/></linearGradient>
+            <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3d5a45"/><stop offset="100%" stop-color="#1b2a20"/></linearGradient>
+            <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#588157"/><stop offset="100%" stop-color="#283618"/></linearGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky2)"/>
+          <polygon points="500,40 380,480 620,480" fill="url(#beam2)"/>
+          <polygon points="500,40 240,480 380,480" fill="url(#beam2)" opacity="0.6"/>
+          <polygon points="500,40 620,480 760,480" fill="url(#beam2)" opacity="0.6"/>
+          <path d="M0 380 Q250 300 500 370 T1000 350 L1000 500 L0 500 Z" fill="url(#hill2)" opacity="0.8"/>
+          <path d="M0 420 Q300 360 650 430 T1000 390 L1000 500 L0 500 Z" fill="url(#hill1)"/>
+        </svg>`
+      },
+      {
+        ref: "Filipenses 4:6-7",
+        verse: "“Não andeis ansiosos de coisa alguma; em tudo, porém, sejam conhecidas as vossas petições diante de Deus pela oração e súplica, com ações de graças.”",
+        sub: "A Paz que Excede Todo Entendimento",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a192f"/><stop offset="45%" stop-color="#172a45"/><stop offset="75%" stop-color="#4d4365"/><stop offset="100%" stop-color="#a67c52"/></linearGradient>
+            <linearGradient id="lake3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3d3752"/><stop offset="30%" stop-color="#232b3e"/><stop offset="100%" stop-color="#0d1522"/></linearGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky3)"/>
+          <circle cx="800" cy="110" r="28" fill="#fff9db" opacity="0.9"/>
+          <circle cx="808" cy="106" r="25" fill="#0c1b31"/>
+          <path d="M0 300 L160 210 L340 280 L520 180 L700 290 L850 200 L1000 270 L1000 330 L0 330 Z" fill="#132135"/>
+          <rect y="325" width="1000" height="175" fill="url(#lake3)"/>
+          <line x1="450" y1="335" x2="590" y2="335" stroke="#f6d365" stroke-width="2" opacity="0.4"/>
+          <line x1="420" y1="355" x2="620" y2="355" stroke="#f6d365" stroke-width="1.5" opacity="0.3"/>
+          <line x1="380" y1="385" x2="660" y2="385" stroke="#f6d365" stroke-width="1" opacity="0.2"/>
+        </svg>`
+      },
+      {
+        ref: "Tiago 5:16",
+        verse: "“Confessai as vossas culpas uns aos outros e orai uns pelos outros, para que sareis. A oração feita por um justo pode muito em seus efeitos.”",
+        sub: "A Força da Intercessão Fraterna",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#141E30"/><stop offset="40%" stop-color="#243B55"/><stop offset="75%" stop-color="#9C6B3E"/><stop offset="100%" stop-color="#E8A858"/></linearGradient>
+            <radialGradient id="sun4" cx="0.5" cy="0.75" r="0.35"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="30%" stop-color="#FCD34D" stop-opacity="0.9"/><stop offset="100%" stop-color="#E8A858" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky4)"/>
+          <circle cx="500" cy="375" r="140" fill="url(#sun4)"/>
+          <path d="M0 385 Q280 340 500 375 T1000 365 L1000 500 L0 500 Z" fill="#161F2E"/>
+          <path d="M0 425 Q350 375 700 435 T1000 405 L1000 500 L0 500 Z" fill="#0C131D"/>
+        </svg>`
+      },
+      {
+        ref: "1 Tessalonicenses 5:17-18",
+        verse: "“Orai sem cessar. Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco.”",
+        sub: "Comunhão Contínua com o Pai",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a1118"/><stop offset="50%" stop-color="#1b2a38"/><stop offset="85%" stop-color="#5c4d3c"/><stop offset="100%" stop-color="#d4af37"/></linearGradient>
+            <linearGradient id="path5" x1="0.5" y1="1" x2="0.5" y2="0"><stop offset="0%" stop-color="#3d372e"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0.5"/></linearGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky5)"/>
+          <path d="M0 340 Q300 280 600 330 T1000 310 L1000 500 L0 500 Z" fill="#202b26" opacity="0.9"/>
+          <path d="M0 390 Q400 320 800 380 T1000 360 L1000 500 L0 500 Z" fill="#131c18"/>
+          <path d="M500 330 Q510 390 560 500 L440 500 Q490 390 500 330 Z" fill="url(#path5)"/>
+        </svg>`
+      },
+      {
+        ref: "Marcos 11:24",
+        verse: "“Por isso vos digo que tudo o que pedirdes em oração, crede que recebestes, e ser-vos-á dado.”",
+        sub: "Certeza e Esperança na Fidelidade de Deus",
+        svg: `<svg viewBox="0 0 1000 500" class="w-full h-full object-cover select-none" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#09182a"/><stop offset="40%" stop-color="#142c48"/><stop offset="75%" stop-color="#5a4e3b"/><stop offset="100%" stop-color="#d9a74a"/></linearGradient>
+            <radialGradient id="sun6" cx="0.5" cy="0.6" r="0.4"><stop offset="0%" stop-color="#FFF9E6"/><stop offset="40%" stop-color="#F3C669" stop-opacity="0.8"/><stop offset="100%" stop-color="#D9A74A" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="1000" height="500" fill="url(#sky6)"/>
+          <circle cx="500" cy="300" r="170" fill="url(#sun6)"/>
+          <path d="M0 370 Q250 300 500 360 T1000 330 L1000 500 L0 500 Z" fill="#253238" opacity="0.85"/>
+          <path d="M0 420 Q350 340 700 410 T1000 380 L1000 500 L0 500 Z" fill="#131b20"/>
+        </svg>`
+      }
+    ];
+
+    let currentVerseSlide = 0;
+    let verseSlideTimer = null;
+    let isVerseSlidePaused = false;
+
+    window.goToVerseSlide = function(index) {
+      if (index < 0) index = PRAYER_VERSE_SLIDES.length - 1;
+      if (index >= PRAYER_VERSE_SLIDES.length) index = 0;
+      currentVerseSlide = index;
+
+      for (let i = 0; i < PRAYER_VERSE_SLIDES.length; i++) {
+        const slideEl = document.getElementById("prayer-slide-" + i);
+        const dotEl = document.getElementById("prayer-dot-" + i);
+        if (slideEl) {
+          if (i === index) {
+            slideEl.classList.remove("opacity-0", "pointer-events-none");
+            slideEl.classList.add("opacity-100", "pointer-events-auto");
+          } else {
+            slideEl.classList.remove("opacity-100", "pointer-events-auto");
+            slideEl.classList.add("opacity-0", "pointer-events-none");
+          }
+        }
+        if (dotEl) {
+          if (i === index) {
+            dotEl.className = "h-2.5 rounded-full transition-all duration-300 w-8 bg-[#C4A46A]";
+            dotEl.setAttribute("aria-selected", "true");
+          } else {
+            dotEl.className = "h-2.5 rounded-full transition-all duration-300 w-2.5 bg-white/40 hover:bg-white/80";
+            dotEl.setAttribute("aria-selected", "false");
+          }
+        }
+      }
+    };
+
+    window.nextVerseSlide = function() {
+      window.goToVerseSlide(currentVerseSlide + 1);
+    };
+
+    window.prevVerseSlide = function() {
+      window.goToVerseSlide(currentVerseSlide - 1);
+    };
+
+    window.pauseVerseSlideshow = function() {
+      isVerseSlidePaused = true;
+    };
+
+    window.resumeVerseSlideshow = function() {
+      isVerseSlidePaused = false;
+    };
+
+    window.startVerseSlideshow = function() {
+      if (verseSlideTimer) clearInterval(verseSlideTimer);
+      verseSlideTimer = setInterval(() => {
+        if (!isVerseSlidePaused && state.route === "home") {
+          window.nextVerseSlide();
+        }
+      }, 5000);
+    };
+
+    // =========================================================================
+    // 9. PÁGINA INICIAL PÚBLICA (/home)
+    // Conforme Instruções do PDF: apenas imagens de paisagens com versículos que
+    // mudam e o botão "Enviar meu pedido de oração (Convidado)"
+    // =========================================================================
     function renderHomePublic() {
-      const publicPrayers = getFilteredPedidos().slice(0, 6);
+      setTimeout(() => {
+        if (typeof window.startVerseSlideshow === "function") {
+          window.startVerseSlideshow();
+        }
+      }, 50);
 
       return `
-        <div class="fade-in space-y-16 lg:space-y-24">
-          <!-- 1. HERO SECTION EDITORIAL EM DUAS COLUNAS -->
-          <section class="pt-2 lg:pt-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-              <!-- Coluna Esquerda: Mensagem Editorial e Chamadas -->
-              <div class="lg:col-span-7 space-y-6">
-                <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#F5EFE2] border border-[#E6D8BC] text-[#8C6D32] text-xs font-semibold tracking-widest uppercase">
-                  <span class="w-2 h-2 rounded-full bg-[#C4A46A]"></span>
-                  <span>UM ESPAÇO DE FÉ, ESPERANÇA E ACOLHIMENTO</span>
-                </div>
+        <div class="fade-in space-y-8 sm:space-y-12 max-w-5xl mx-auto py-2 sm:py-6">
+          <!-- Banner de Paisagens com Versículos sobre o Poder da Oração -->
+          <section aria-label="Versículos bíblicos sobre o poder da oração"
+            class="relative rounded-3xl overflow-hidden shadow-2xl border border-[#E8E5DE] bg-[#172B4D] text-white select-none"
+            onmouseenter="window.pauseVerseSlideshow()"
+            onmouseleave="window.resumeVerseSlideshow()"
+            ontouchstart="window.pauseVerseSlideshow()">
 
-                <h1 class="hero-h1 font-bold">
-                  Você não precisa carregar tudo sozinho.
-                </h1>
+            <!-- Container dos Slides com Altura Responsiva -->
+            <div id="verse-slides-viewport" class="relative w-full min-h-[360px] sm:min-h-[440px] md:min-h-[480px] lg:min-h-[520px] flex items-center justify-center overflow-hidden">
+              ${PRAYER_VERSE_SLIDES.map((slide, idx) => `
+                <div id="prayer-slide-${idx}"
+                  class="prayer-verse-slide absolute inset-0 flex flex-col justify-end sm:justify-center items-center text-center p-6 sm:p-10 md:p-14 transition-opacity duration-1000 ease-in-out ${idx === 0 ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label="Slide ${idx + 1} de ${PRAYER_VERSE_SLIDES.length}: ${slide.ref}">
 
-                <p class="text-lg sm:text-xl text-[#687386] reading-measure leading-relaxed">
-                  Compartilhe seu pedido de oração. Vamos unir corações em fé, esperança e intercessão.
-                </p>
-
-                <!-- Botões Principais da Hero Section -->
-                <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-                  <button type="button" onclick="scrollToSection('secao-enviar-pedido')"
-                    class="px-7 py-4 btn-primary-navy text-base flex items-center justify-center gap-2.5">
-                    <span>🙏</span>
-                    <span>Enviar meu pedido de oração</span>
-                  </button>
-                  <button type="button" onclick="navigateTo('acompanharpedidos')"
-                    class="px-7 py-4 btn-secondary-editorial text-base flex items-center justify-center gap-2">
-                    <span>Conhecer o mural de oração</span>
-                    <span>→</span>
-                  </button>
-                </div>
-
-                <!-- Acesso rápido preservado: Fazer Login, Criar Cadastro e Pedido Convidado -->
-                <div class="pt-4 border-t border-[#E8E5DE] flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-                  <span class="text-[#687386] font-medium">Acesso rápido da comunidade:</span>
-                  <button type="button" onclick="navigateTo('login')"
-                    class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#F3EFE6] text-[#172B4D] font-semibold border border-[#E8E5DE] transition">
-                    🔐 Fazer Login
-                  </button>
-                  <button type="button" onclick="navigateTo('cadastro')"
-                    class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#F3EFE6] text-[#172B4D] font-semibold border border-[#E8E5DE] transition">
-                    📝 Criar Cadastro
-                  </button>
-                  <button type="button" onclick="navigateTo('pedidoconvidado')"
-                    class="px-3.5 py-2 rounded-xl bg-[#EBF0EC] hover:bg-[#dce6de] text-[#287A58] font-semibold border border-[#CFE0D5] transition">
-                    ✨ Fazer pedido de oração (Convidado)
-                  </button>
-                </div>
-              </div>
-
-              <!-- Coluna Direita: Ilustração Editorial Minimalista de Luz Natural e Esperança -->
-              <div class="lg:col-span-5">
-                <div class="surface-card p-6 sm:p-8 bg-gradient-to-b from-[#FFFFFF] to-[#FAF8F3] relative overflow-hidden">
-                  <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-[#FAF8F3] border border-[#E8E5DE] flex items-center justify-center relative">
-                    <svg viewBox="0 0 520 390" class="w-full h-full object-cover" role="img" aria-label="Composição serena de luz natural entrando por um arco arquitetônico sobre um horizonte de paz">
-                      <defs>
-                        <linearGradient id="skyWarm" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#172B4D" />
-                          <stop offset="52%" stop-color="#203653" />
-                          <stop offset="100%" stop-color="#C4A46A" stop-opacity="0.55" />
-                        </linearGradient>
-                        <linearGradient id="sunBeam" x1="0.2" y1="0" x2="0.8" y2="1">
-                          <stop offset="0%" stop-color="#FAF8F3" stop-opacity="0.45" />
-                          <stop offset="100%" stop-color="#C4A46A" stop-opacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <!-- Fundo Editorial Marfim -->
-                      <rect width="520" height="390" fill="#F3EFE6" />
-                      <!-- Janela em Arco Serena -->
-                      <path d="M130 350 V165 A130 130 0 0 1 390 165 V350 Z" fill="url(#skyWarm)" />
-                      <!-- Sol Suave no Horizonte -->
-                      <circle cx="260" cy="235" r="46" fill="#FAF8F3" fill-opacity="0.88" />
-                      <!-- Colinas Serenas em Sálvia e Azul Profundo -->
-                      <path d="M130 290 Q205 255 275 282 T390 275 L390 350 L130 350 Z" fill="#829889" fill-opacity="0.65" />
-                      <path d="M130 315 Q230 285 390 312 L390 350 L130 350 Z" fill="#172B4D" fill-opacity="0.85" />
-                      <!-- Feixe de Luz Natural -->
-                      <polygon points="215,95 315,95 430,365 110,365" fill="url(#sunBeam)" />
-                      <!-- Cruz Minimalista Dourada Discreta -->
-                      <path d="M260 112 V168 M240 132 H280" stroke="#C4A46A" stroke-width="2.5" stroke-linecap="round" />
-                      <!-- Moldura Arquitetônica Fina -->
-                      <path d="M130 350 V165 A130 130 0 0 1 390 165 V350" fill="none" stroke="#C4A46A" stroke-width="2" stroke-opacity="0.7" />
-                      <line x1="90" y1="350" x2="430" y2="350" stroke="#E8E5DE" stroke-width="3" />
-                    </svg>
+                  <!-- Imagem de Fundo (Paisagem SVG Crisp e Responsiva) -->
+                  <div class="absolute inset-0 z-0">
+                    ${slide.svg}
                   </div>
 
-                  <div class="mt-5 flex items-center justify-between gap-4 pt-3 border-t border-[#E8E5DE]">
-                    <div>
-                      <p class="font-serif italic text-sm text-[#203653]">
-                        “Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.”
-                      </p>
-                      <p class="text-xs font-semibold text-[#8C6D32] mt-0.5">Mateus 11:28</p>
-                    </div>
-                    <div class="text-right flex-shrink-0">
-                      <span class="block text-lg font-serif font-bold text-[#172B4D]">${state.pedidos.length}</span>
-                      <span class="block text-[11px] text-[#687386]">intenções acolhidas</span>
-                    </div>
+                  <!-- Overlay Escuro Degradê Editorial para Máxima Legibilidade dos Versículos -->
+                  <div class="absolute inset-0 z-10 bg-gradient-to-t from-[#0B1524]/95 via-[#0F1E33]/65 to-[#0B1524]/40"></div>
+
+                  <!-- Conteúdo do Versículo -->
+                  <div class="relative z-20 max-w-3xl mx-auto flex flex-col items-center pb-8 sm:pb-0">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-[#C4A46A]/50 text-[#FAF8F3] text-xs font-semibold tracking-widest uppercase mb-4 sm:mb-6 shadow-sm">
+                      <span class="w-2 h-2 rounded-full bg-[#C4A46A] animate-pulse"></span>
+                      <span>O Poder da Oração</span>
+                    </span>
+
+                    <blockquote class="font-serif italic text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-normal leading-relaxed drop-shadow-lg px-2 sm:px-6">
+                      ${slide.verse}
+                    </blockquote>
+
+                    <cite class="not-italic mt-4 sm:mt-6 block text-sm sm:text-base font-bold text-[#C4A46A] tracking-widest uppercase drop-shadow">
+                      — ${slide.ref}
+                    </cite>
                   </div>
                 </div>
-              </div>
+              `).join("")}
             </div>
-          </section>
 
-          <!-- 2. SEÇÃO CENTRAL: FORMULÁRIO DE PEDIDOS DE ORAÇÃO -->
-          <section id="secao-enviar-pedido" class="scroll-mt-24 py-10 sm:py-14 px-4 sm:px-8 rounded-3xl bg-[#F3EFE6]/80 border border-[#E8E5DE]">
-            ${renderUnifiedPrayerFormSection(state.currentUser ? "logged" : "home")}
-          </section>
+            <!-- Botões de Navegação Anterior / Próximo -->
+            <button type="button"
+              onclick="window.prevVerseSlide()"
+              aria-label="Versículo anterior"
+              class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/65 text-white backdrop-blur-sm border border-white/20 flex items-center justify-center transition shadow-md">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button type="button"
+              onclick="window.nextVerseSlide()"
+              aria-label="Próximo versículo"
+              class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/65 text-white backdrop-blur-sm border border-white/20 flex items-center justify-center transition shadow-md">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
 
-          <!-- 3. SEÇÃO MURAL DE ORAÇÃO COMUNITÁRIO -->
-          <section id="secao-mural" class="scroll-mt-24 space-y-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E8E5DE] pb-6">
-              <div class="space-y-2">
-                <span class="text-xs font-semibold uppercase tracking-widest text-[#8C6D32]">Comunhão &amp; Intercessão</span>
-                <h2 class="section-h2 font-bold">Mural de Oração</h2>
-                <p class="text-base text-[#687386] reading-measure">
-                  Cada cartão representa uma vida e uma esperança. Toque em “Estou orando por você” para fortalecer a fé de um irmão.
-                </p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2.5">
-                <button type="button" onclick="navigateTo('acompanharpedidos')"
-                  class="px-5 py-3 rounded-xl bg-white hover:bg-[#F3EFE6] text-[#172B4D] border border-[#E8E5DE] text-xs sm:text-sm font-semibold transition">
-                  Ver mural completo e filtros (${getFilteredPedidos().length}) →
+            <!-- Indicadores de Pontos (Dots) -->
+            <div class="absolute bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2" role="tablist" aria-label="Indicadores dos slides">
+              ${PRAYER_VERSE_SLIDES.map((_, idx) => `
+                <button type="button"
+                  id="prayer-dot-${idx}"
+                  onclick="window.goToVerseSlide(${idx})"
+                  role="tab"
+                  aria-selected="${idx === 0 ? 'true' : 'false'}"
+                  aria-label="Ir para o slide ${idx + 1}"
+                  class="h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'w-8 bg-[#C4A46A]' : 'w-2.5 bg-white/40 hover:bg-white/80'}">
                 </button>
-              </div>
-            </div>
-
-            ${publicPrayers.length === 0 ? `
-              <div class="surface-card p-10 text-center space-y-3">
-                <p class="font-serif text-xl font-semibold text-[#203653]">O mural aguarda a primeira intenção para este filtro.</p>
-                <p class="text-sm text-[#687386] max-w-md mx-auto">
-                  Seja o primeiro a compartilhar um motivo de oração ou gratidão com a comunidade.
-                </p>
-              </div>
-            ` : `
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                ${publicPrayers.map(renderPrayerCardEditorial).join("")}
-              </div>
-            `}
-          </section>
-
-          <!-- 4. SEÇÃO DE PROPÓSITO E ACOLHIMENTO (SOBRE) -->
-          <section id="secao-sobre" class="scroll-mt-24 surface-card p-8 sm:p-12 lg:p-16 bg-white">
-            <div class="max-w-3xl mx-auto text-center space-y-5">
-              <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EBF0EC] text-[#287A58] text-xs font-semibold uppercase tracking-widest">
-                Nosso Propósito
-              </span>
-              <h2 class="section-h2 font-bold">Uma comunidade unida pela oração</h2>
-              <p class="text-base sm:text-lg text-[#28313D] leading-relaxed">
-                Cada pedido representa uma história, uma esperança e uma pessoa que merece ser acolhida. Este espaço existe para incentivar a fé, a solidariedade e a intercessão, sempre com respeito à história de cada pessoa.
-              </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 pt-10 border-t border-[#E8E5DE]">
-              <div class="p-5 rounded-2xl bg-[#FAF8F3] border border-[#E8E5DE] space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-[#172B4D] text-[#C4A46A] flex items-center justify-center text-lg">🕊️</div>
-                <h3 class="card-h3 font-bold">Acolhimento Fraterno</h3>
-                <p class="text-sm text-[#687386] leading-relaxed">
-                  Um ambiente sereno e livre de julgamentos para você depositar suas lutas, causas familiares, saúde e ações de graças.
-                </p>
-              </div>
-              <div class="p-5 rounded-2xl bg-[#FAF8F3] border border-[#E8E5DE] space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-[#172B4D] text-[#C4A46A] flex items-center justify-center text-lg">🙏</div>
-                <h3 class="card-h3 font-bold">Intercessão Mútua</h3>
-                <p class="text-sm text-[#687386] leading-relaxed">
-                  Acompanhe os pedidos da semana e do mês, interceda pelos irmãos e compartilhe a lista de oração no WhatsApp da igreja.
-                </p>
-              </div>
-              <div class="p-5 rounded-2xl bg-[#FAF8F3] border border-[#E8E5DE] space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-[#172B4D] text-[#C4A46A] flex items-center justify-center text-lg">🔒</div>
-                <h3 class="card-h3 font-bold">Confiança e Privacidade</h3>
-                <p class="text-sm text-[#687386] leading-relaxed">
-                  Você decide se deseja identificar seu pedido, enviá-lo de forma anônima ou destiná-lo somente ao cuidado pastoral.
-                </p>
-              </div>
+              `).join("")}
             </div>
           </section>
+
+          <!-- Único Botão da Página Inicial conforme solicitado no PDF: Enviar meu pedido de oração (Convidado) -->
+          <div class="pt-2 sm:pt-4 flex flex-col items-center justify-center text-center space-y-3">
+            <button type="button"
+              onclick="navigateTo('pedidoconvidado')"
+              class="w-full sm:w-auto min-w-[280px] sm:min-w-[420px] px-8 sm:px-12 py-4 sm:py-5 rounded-2xl bg-[#172B4D] hover:bg-[#203653] text-white font-semibold text-lg sm:text-xl shadow-xl hover:shadow-2xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3 border border-[#203653]">
+              <span class="text-2xl">🙏</span>
+              <span>Enviar meu pedido de oração (Convidado)</span>
+            </button>
+            <p class="text-xs sm:text-sm text-[#687386]">
+              Acolhimento fraterno e confidencial. Não é necessário cadastro prévio para enviar sua intenção.
+            </p>
+          </div>
         </div>
       `;
     }
 
-    // =========================================================================
-    // 10. PÁGINA DE LOGIN (/login) E ESQUECI MINHA SENHA
-    // =========================================================================
     function renderLogin() {
       return `
         <div class="fade-in max-w-md mx-auto py-4">
