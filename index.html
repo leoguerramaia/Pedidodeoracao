@@ -113,7 +113,7 @@
     }
 
     // =========================================================================
-    // 2. ESTADO GLOBAL DA APLICAÇÃO
+    // 2. ESTADO GLOBAL E COMPATIBILIDADE TOTAL DE COLUNAS SUPABASE
     // =========================================================================
     const MESES_NOMES = [
       "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -130,16 +130,16 @@
 
     function createInitialAdmin() {
       return {
-        id: "admin_master",
+        id: "usr_admin",
         username: "admin",
         nome: "Administrador",
         sobrenome: "Master",
         sexo: "Masculino",
         data_nascimento: "1985-10-15",
         telefone: "(86) 99999-0000",
-        email: "admin@pedidodeoracao.com",
-        cep: "64000-000",
-        rua: "Praça Rio Branco",
+        email: "admin@oracao.org",
+        cep: "64000-040",
+        rua: "Avenida Frei Serafim",
         numero: "100",
         complemento: "Sede",
         bairro: "Centro",
@@ -148,17 +148,86 @@
         senha: "admin",
         foto: DEFAULT_AVATAR,
         role: "master",
+        is_admin: true,
         precisa_trocar_senha: true,
         reset_solicitado: false,
         criado_em: "2026-01-01T10:00:00.000Z"
       };
     }
 
+    // Normaliza qualquer registro de usuário vindo do Supabase (esquema antigo ou novo)
+    function normalizeUserFromDb(raw) {
+      if (!raw || typeof raw !== "object") return createInitialAdmin();
+      let comp = raw.complemento || "";
+      let bday = raw.data_nascimento || "";
+      if (!bday && comp.includes("[NASC:")) {
+        const m = comp.match(/\[NASC:([0-9]{4}-[0-9]{2}-[0-9]{2})\]/);
+        if (m) bday = m[1];
+      }
+      comp = comp.replace(/\s*\[NASC:[0-9]{4}-[0-9]{2}-[0-9]{2}\]/g, "").trim();
+
+      const isMasterUser =
+        raw.id === "usr_admin" ||
+        raw.id === "admin_master" ||
+        String(raw.username || "").toLowerCase() === "admin" ||
+        String(raw.email || "").toLowerCase() === "admin@oracao.org";
+
+      const isAdminFlag = Boolean(
+        isMasterUser ||
+        raw.is_admin === true ||
+        raw.role === "admin" ||
+        raw.role === "master"
+      );
+
+      return {
+        id: isMasterUser ? "usr_admin" : String(raw.id || "usr_" + Date.now()),
+        username: isMasterUser ? "admin" : String(raw.username || raw.email || ""),
+        nome: raw.nome || "",
+        sobrenome: raw.sobrenome || "",
+        sexo: raw.sexo || "Masculino",
+        data_nascimento: bday,
+        telefone: raw.telefone || "",
+        email: raw.email || "",
+        cep: raw.cep || "",
+        rua: raw.rua || "",
+        numero: raw.numero || "",
+        complemento: comp,
+        bairro: raw.bairro || "",
+        cidade: raw.cidade || "",
+        estado: raw.estado || "",
+        senha: String(raw.senha || "1234"),
+        foto: raw.foto_perfil || raw.foto || DEFAULT_AVATAR,
+        role: isMasterUser ? "master" : (isAdminFlag ? "admin" : "user"),
+        is_admin: isAdminFlag,
+        precisa_trocar_senha: Boolean(
+          raw.must_change_password !== undefined ? raw.must_change_password : raw.precisa_trocar_senha
+        ),
+        reset_solicitado: Boolean(
+          raw.reset_requested !== undefined ? raw.reset_requested : raw.reset_solicitado
+        ),
+        criado_em: raw.created_at || raw.criado_em || new Date().toISOString()
+      };
+    }
+
+    // Normaliza qualquer registro de pedido vindo de pedidos_oracao ou pedidos
+    function normalizePedidoFromDb(raw) {
+      if (!raw || typeof raw !== "object") return null;
+      return {
+        id: String(raw.id || "ped_" + Date.now()),
+        user_id: String(raw.user_id || "convidado"),
+        nome: raw.nome || "",
+        sobrenome: raw.sobrenome || "",
+        sexo: raw.sexo || "Masculino",
+        texto: raw.pedido !== undefined ? raw.pedido : (raw.texto || ""),
+        criado_em: raw.created_at || raw.criado_em || new Date().toISOString()
+      };
+    }
+
     const state = {
-      route: "home", // home, login, cadastro, pedidoconvidado, dashboard, contatos, pedidooracao, acompanharpedidos, aniversariantes, perfil
+      route: "home",
       currentUser: safeGetStorage("po_current_user", null),
-      usuarios: safeGetStorage("po_usuarios_v3", [createInitialAdmin()]),
-      pedidos: safeGetStorage("po_pedidos_v3", []),
+      usuarios: (safeGetStorage("po_usuarios_v3", [createInitialAdmin()]) || []).map(normalizeUserFromDb),
+      pedidos: (safeGetStorage("po_pedidos_v3", []) || []).map(normalizePedidoFromDb).filter(Boolean),
       sbUrl: safeGetStorage("po_sb_url", DEFAULT_SUPABASE_URL),
       sbKey: safeGetStorage("po_sb_key", DEFAULT_SUPABASE_KEY),
       sbStatus: "idle", // idle, syncing, connected, offline
@@ -170,41 +239,40 @@
         feminino: false,
         busca: ""
       },
-      filtroMesAniversario: new Date().getMonth() + 1, // 1..12 ou 0 para todos
+      filtroMesAniversario: new Date().getMonth() + 1,
       buscaContatos: "",
       tempFotoCadastro: "",
       tempFotoPerfil: ""
     };
 
-    // Garante que o admin_master sempre exista e nunca perca o papel master
     function ensureMasterIntegrity() {
       if (!Array.isArray(state.usuarios)) {
         state.usuarios = [createInitialAdmin()];
       }
-      const idx = state.usuarios.findIndex(u => u.id === "admin_master" || (u.username || "").toLowerCase() === "admin");
-      if (idx === -1) {
+      // Remove duplicatas entre admin_master e usr_admin
+      const masters = state.usuarios.filter(
+        u => u.id === "usr_admin" || u.id === "admin_master" || String(u.username || "").toLowerCase() === "admin"
+      );
+      if (masters.length === 0) {
         state.usuarios.unshift(createInitialAdmin());
       } else {
-        state.usuarios[idx].id = "admin_master";
-        state.usuarios[idx].username = "admin";
-        state.usuarios[idx].role = "master";
+        const primary = normalizeUserFromDb(masters[0]);
+        primary.id = "usr_admin";
+        primary.username = "admin";
+        primary.role = "master";
+        primary.is_admin = true;
+        state.usuarios = [
+          primary,
+          ...state.usuarios
+            .filter(u => u.id !== "usr_admin" && u.id !== "admin_master" && String(u.username || "").toLowerCase() !== "admin")
+            .map(normalizeUserFromDb)
+        ];
       }
-      // Desempacota data_nascimento caso tenha vindo embutida no complemento do Supabase
-      state.usuarios.forEach(u => {
-        if (!u.data_nascimento && u.complemento && u.complemento.includes("[NASC:")) {
-          const m = u.complemento.match(/\[NASC:([0-9]{4}-[0-9]{2}-[0-9]{2})\]/);
-          if (m) {
-            u.data_nascimento = m[1];
-            u.complemento = u.complemento.replace(/\s*\[NASC:[0-9]{4}-[0-9]{2}-[0-9]{2}\]/g, "").trim();
-          }
-        }
-      });
       if (state.currentUser) {
-        const fresh = state.usuarios.find(u => u.id === state.currentUser.id);
-        if (fresh) {
-          state.currentUser = fresh;
-          safeSetStorage("po_current_user", fresh);
-        }
+        const normCurr = normalizeUserFromDb(state.currentUser);
+        const fresh = state.usuarios.find(u => u.id === normCurr.id);
+        state.currentUser = fresh || normCurr;
+        safeSetStorage("po_current_user", state.currentUser);
       }
     }
 
@@ -212,12 +280,12 @@
 
     function isAdmin(user) {
       if (!user) return false;
-      return user.role === "master" || user.role === "admin" || user.id === "admin_master";
+      return Boolean(user.is_admin || user.role === "master" || user.role === "admin" || user.id === "usr_admin" || user.id === "admin_master");
     }
 
     function isMaster(user) {
       if (!user) return false;
-      return user.role === "master" || user.id === "admin_master";
+      return Boolean(user.role === "master" || user.id === "usr_admin" || user.id === "admin_master" || String(user.username || "").toLowerCase() === "admin");
     }
 
     // =========================================================================
@@ -226,7 +294,6 @@
     function parseBirthDate(dateStr) {
       if (!dateStr || typeof dateStr !== "string") return null;
       const clean = dateStr.trim();
-      // YYYY-MM-DD
       let m = clean.match(/^(\d{4})-(\d{2})-(\d{2})/);
       if (m) {
         return {
@@ -236,7 +303,6 @@
           iso: `${m[1]}-${m[2]}-${m[3]}`
         };
       }
-      // DD/MM/YYYY
       m = clean.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
       if (m) {
         return {
@@ -259,10 +325,8 @@
       const currentMonth = now.getMonth() + 1;
       const currentDay = now.getDate();
 
-      // Idade que a pessoa está fazendo neste ano
       const idadeFazendo = Math.max(0, currentYear - parsed.year);
       const isToday = (parsed.month === currentMonth && parsed.day === currentDay);
-      const alreadyPassedThisYear = (parsed.month < currentMonth) || (parsed.month === currentMonth && parsed.day < currentDay);
 
       const dayPad = String(parsed.day).padStart(2, "0");
       const monthPad = String(parsed.month).padStart(2, "0");
@@ -271,7 +335,6 @@
         ...parsed,
         idadeFazendo,
         isToday,
-        alreadyPassedThisYear,
         shortDate: `${dayPad}/${monthPad}`,
         fullDateFormatted: `${dayPad}/${monthPad}/${parsed.year}`,
         extensoDate: `${dayPad} de ${MESES_NOMES[parsed.month - 1]}`,
@@ -290,7 +353,7 @@
         })
         .filter(item => {
           if (!item) return false;
-          if (targetMonth === 0) return true; // Todos os meses
+          if (targetMonth === 0) return true;
           return item.bday.month === targetMonth;
         })
         .sort((a, b) => {
@@ -300,7 +363,7 @@
     }
 
     // =========================================================================
-    // 4. INTEGRAÇÃO SUPABASE (ASSÍNCRONA, COM TIMEOUT E FALLBACK AUTOMÁTICO)
+    // 4. INTEGRAÇÃO SUPABASE (COMPATÍVEL COM ESQUEMA EXISTENTE + AUTO-RETRY)
     // =========================================================================
     async function sbFetch(tableAndQuery, options = {}) {
       const restBase = normalizeSupabaseRestUrl(state.sbUrl);
@@ -336,77 +399,95 @@
       }
     }
 
-    function sanitizeUserForSupabase(u, includeBirthColumn = true) {
-      let comp = u.complemento || "";
-      comp = comp.replace(/\s*\[NASC:[0-9]{4}-[0-9]{2}-[0-9]{2}\]/g, "").trim();
-      if (!includeBirthColumn && u.data_nascimento) {
+    // Empacota usuário usando exatamente as colunas da tabela public.usuarios no Supabase
+    function buildUserPayloadForSupabase(u, includeDataNascimentoCol = true) {
+      let comp = String(u.complemento || "").replace(/\s*\[NASC:[0-9]{4}-[0-9]{2}-[0-9]{2}\]/g, "").trim();
+      // Sempre preserva a data de nascimento embutida de forma transparente caso a coluna não exista ainda
+      if (!includeDataNascimentoCol && u.data_nascimento) {
         comp = (comp + ` [NASC:${u.data_nascimento}]`).trim();
       }
       const payload = {
-        id: u.id,
-        username: u.username || "",
+        id: String(u.id),
+        username: u.username || (u.email ? u.email.split("@")[0] : "usuario"),
         nome: u.nome || "",
         sobrenome: u.sobrenome || "",
         sexo: u.sexo || "Masculino",
         telefone: u.telefone || "",
-        email: u.email || "",
+        email: (u.email || "").toLowerCase(),
         cep: u.cep || "",
         rua: u.rua || "",
-        numero: u.numero || "",
-        complemento: comp,
         bairro: u.bairro || "",
         cidade: u.cidade || "",
         estado: u.estado || "",
-        senha: u.senha || "",
-        foto: u.foto || DEFAULT_AVATAR,
-        role: u.role || "user",
-        precisa_trocar_senha: Boolean(u.precisa_trocar_senha),
-        reset_solicitado: Boolean(u.reset_solicitado),
-        criado_em: u.criado_em || new Date().toISOString()
+        numero: u.numero || "",
+        complemento: comp,
+        foto_perfil: u.foto || DEFAULT_AVATAR,
+        senha: String(u.senha || "1234"),
+        is_admin: isAdmin(u),
+        must_change_password: Boolean(u.precisa_trocar_senha),
+        reset_requested: Boolean(u.reset_solicitado),
+        created_at: u.criado_em || new Date().toISOString()
       };
-      if (includeBirthColumn) {
-        payload.data_nascimento = u.data_nascimento || "";
+      if (includeDataNascimentoCol && u.data_nascimento) {
+        payload.data_nascimento = u.data_nascimento;
       }
       return payload;
+    }
+
+    // Envia para o Supabase removendo automaticamente qualquer coluna ausente caso ocorra PGRST204
+    async function sbUpsertResilient(tableName, payloadObj) {
+      let currentPayload = Object.assign({}, payloadObj);
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          await sbFetch(`${tableName}?on_conflict=id`, {
+            method: "POST",
+            headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+            body: JSON.stringify(currentPayload)
+          });
+          return true;
+        } catch (err) {
+          const msg = String(err.message || "");
+          // Se a tabela ainda não tem data_nascimento (ou outra coluna opcional), remove e tenta novamente!
+          const colMatch = msg.match(/Could not find the '([^']+)' column/i);
+          if (colMatch && colMatch[1] && colMatch[1] in currentPayload) {
+            const missingCol = colMatch[1];
+            if (missingCol === "data_nascimento" && currentPayload.data_nascimento) {
+              const bday = currentPayload.data_nascimento;
+              let comp = String(currentPayload.complemento || "").replace(/\s*\[NASC:[0-9]{4}-[0-9]{2}-[0-9]{2}\]/g, "").trim();
+              currentPayload.complemento = (comp + ` [NASC:${bday}]`).trim();
+            }
+            delete currentPayload[missingCol];
+            continue;
+          }
+          throw err;
+        }
+      }
+      return false;
     }
 
     async function upsertUserSupabase(userObj) {
       ensureMasterIntegrity();
       safeSetStorage("po_usuarios_v3", state.usuarios);
       try {
-        await sbFetch("usuarios?on_conflict=id", {
-          method: "POST",
-          headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
-          body: JSON.stringify(sanitizeUserForSupabase(userObj, true))
-        });
+        await sbUpsertResilient("usuarios", buildUserPayloadForSupabase(userObj, true));
         state.sbStatus = "connected";
         state.sbLastError = "";
       } catch (err) {
-        // Fallback caso a tabela remota ainda não tenha a coluna data_nascimento criada
-        try {
-          await sbFetch("usuarios?on_conflict=id", {
-            method: "POST",
-            headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
-            body: JSON.stringify(sanitizeUserForSupabase(userObj, false))
-          });
-          state.sbStatus = "connected";
-          state.sbLastError = "";
-        } catch (err2) {
-          state.sbStatus = "offline";
-          state.sbLastError = err2.message || "Falha de comunicação com o Supabase";
-        }
+        state.sbStatus = "offline";
+        state.sbLastError = err.message || "Falha ao gravar usuário no Supabase";
       }
       if (isAdmin(state.currentUser)) renderHeader();
     }
 
     async function deleteUserSupabase(userId) {
-      if (userId === "admin_master") return;
+      if (userId === "usr_admin" || userId === "admin_master") return;
       safeSetStorage("po_usuarios_v3", state.usuarios);
       try {
         await sbFetch(`usuarios?id=eq.${encodeURIComponent(userId)}`, {
           method: "DELETE"
         });
         state.sbStatus = "connected";
+        state.sbLastError = "";
       } catch (err) {
         state.sbStatus = "offline";
         state.sbLastError = err.message || "";
@@ -415,25 +496,37 @@
 
     async function upsertPedidoSupabase(pedidoObj) {
       safeSetStorage("po_pedidos_v3", state.pedidos);
+      const payloadPedidosOracao = {
+        id: String(pedidoObj.id),
+        user_id: String(pedidoObj.user_id || "convidado"),
+        nome: pedidoObj.nome || "",
+        sobrenome: pedidoObj.sobrenome || "",
+        sexo: pedidoObj.sexo || "Masculino",
+        pedido: pedidoObj.texto || "",
+        created_at: pedidoObj.criado_em || new Date().toISOString()
+      };
       try {
-        await sbFetch("pedidos?on_conflict=id", {
-          method: "POST",
-          headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
-          body: JSON.stringify({
-            id: pedidoObj.id,
-            user_id: pedidoObj.user_id || "guest",
+        await sbUpsertResilient("pedidos_oracao", payloadPedidosOracao);
+        state.sbStatus = "connected";
+        state.sbLastError = "";
+      } catch (err) {
+        // Fallback caso a tabela tenha sido criada com o nome 'pedidos'
+        try {
+          await sbUpsertResilient("pedidos", {
+            id: String(pedidoObj.id),
+            user_id: String(pedidoObj.user_id || "convidado"),
             nome: pedidoObj.nome || "",
             sobrenome: pedidoObj.sobrenome || "",
             sexo: pedidoObj.sexo || "Masculino",
             texto: pedidoObj.texto || "",
             criado_em: pedidoObj.criado_em || new Date().toISOString()
-          })
-        });
-        state.sbStatus = "connected";
-        state.sbLastError = "";
-      } catch (err) {
-        state.sbStatus = "offline";
-        state.sbLastError = err.message || "Erro ao gravar pedido no Supabase";
+          });
+          state.sbStatus = "connected";
+          state.sbLastError = "";
+        } catch (err2) {
+          state.sbStatus = "offline";
+          state.sbLastError = err.message || "Erro ao gravar pedido no Supabase";
+        }
       }
       if (isAdmin(state.currentUser)) renderHeader();
     }
@@ -441,12 +534,29 @@
     async function deletePedidoSupabase(pedidoId) {
       safeSetStorage("po_pedidos_v3", state.pedidos);
       try {
-        await sbFetch(`pedidos?id=eq.${encodeURIComponent(pedidoId)}`, {
+        await sbFetch(`pedidos_oracao?id=eq.${encodeURIComponent(pedidoId)}`, {
           method: "DELETE"
         });
         state.sbStatus = "connected";
+        state.sbLastError = "";
       } catch (err) {
-        state.sbStatus = "offline";
+        try {
+          await sbFetch(`pedidos?id=eq.${encodeURIComponent(pedidoId)}`, {
+            method: "DELETE"
+          });
+          state.sbStatus = "connected";
+          state.sbLastError = "";
+        } catch (err2) {
+          state.sbStatus = "offline";
+        }
+      }
+    }
+
+    async function fetchPedidosFromSupabase() {
+      try {
+        return await sbFetch("pedidos_oracao?select=*");
+      } catch (e1) {
+        return await sbFetch("pedidos?select=*");
       }
     }
 
@@ -457,24 +567,26 @@
       try {
         const [remUsers, remPedidos] = await Promise.all([
           sbFetch("usuarios?select=*"),
-          sbFetch("pedidos?select=*&order=criado_em.desc")
+          fetchPedidosFromSupabase()
         ]);
 
         if (Array.isArray(remUsers)) {
           if (remUsers.length === 0) {
-            // Sobe o admin master inicial se o banco estiver vazio
-            const master = state.usuarios.find(u => u.id === "admin_master") || createInitialAdmin();
+            const master = state.usuarios.find(isMaster) || createInitialAdmin();
             await upsertUserSupabase(master);
           } else {
-            // Mescla preservando dados locais caso ainda não sincronizados
             const mapById = new Map();
-            state.usuarios.forEach(u => mapById.set(u.id, u));
+            state.usuarios.forEach(u => {
+              const nu = normalizeUserFromDb(u);
+              mapById.set(nu.id, nu);
+            });
             remUsers.forEach(ru => {
-              const localU = mapById.get(ru.id);
-              if (localU && localU.data_nascimento && !ru.data_nascimento) {
-                ru.data_nascimento = localU.data_nascimento;
+              const nru = normalizeUserFromDb(ru);
+              const localU = mapById.get(nru.id);
+              if (localU && localU.data_nascimento && !nru.data_nascimento) {
+                nru.data_nascimento = localU.data_nascimento;
               }
-              mapById.set(ru.id, Object.assign({}, localU || {}, ru));
+              mapById.set(nru.id, Object.assign({}, localU || {}, nru));
             });
             state.usuarios = Array.from(mapById.values());
             ensureMasterIntegrity();
@@ -484,8 +596,14 @@
 
         if (Array.isArray(remPedidos)) {
           const mapPed = new Map();
-          state.pedidos.forEach(p => mapPed.set(p.id, p));
-          remPedidos.forEach(rp => mapPed.set(rp.id, rp));
+          state.pedidos.forEach(p => {
+            const np = normalizePedidoFromDb(p);
+            if (np) mapPed.set(np.id, np);
+          });
+          remPedidos.forEach(rp => {
+            const nrp = normalizePedidoFromDb(rp);
+            if (nrp) mapPed.set(nrp.id, nrp);
+          });
           state.pedidos = Array.from(mapPed.values()).sort(
             (a, b) => new Date(b.criado_em) - new Date(a.criado_em)
           );
@@ -498,7 +616,7 @@
       } catch (err) {
         state.sbStatus = "offline";
         state.sbLastError = err.message || "Falha ao conectar no Supabase";
-        if (!silent) showToast("Modo offline ativo: verifique as tabelas no painel do Administrador.", "warning");
+        if (!silent) showToast("Aviso: execute o Script SQL no painel do Supabase se necessário.", "warning");
       }
 
       renderApp();
@@ -519,7 +637,6 @@
     ];
 
     function detectInitialRoute() {
-      // 1. Verifica hash (#/login) ou query (?route=login)
       const hash = (window.location.hash || "").replace(/^#\/?/, "").trim().toLowerCase();
       if (VALID_ROUTES.includes(hash)) return hash;
 
@@ -527,12 +644,10 @@
       const qRoute = (params.get("p") || params.get("route") || "").toLowerCase();
       if (VALID_ROUTES.includes(qRoute)) return qRoute;
 
-      // 2. Verifica pathname (/Pedidodeoracao/login)
       const path = (window.location.pathname || "").toLowerCase().replace(/\/index\.html$/, "").replace(/\/+$/, "");
       const lastSeg = path.split("/").filter(Boolean).pop() || "";
       if (VALID_ROUTES.includes(lastSeg)) return lastSeg;
 
-      // 3. Verifica rota embutida no HTML de subpasta
       const embedded = (window.__INITIAL_ROUTE__ || "").toLowerCase();
       if (VALID_ROUTES.includes(embedded) && embedded !== "home") return embedded;
 
@@ -566,9 +681,7 @@
         } else {
           window.location.hash = next === "home" ? "" : `#/${next}`;
         }
-      } catch (e) {
-        // Ignora bloqueios de history em sandbox iframe
-      }
+      } catch (e) {}
 
       window.scrollTo({ top: 0, behavior: "smooth" });
       renderApp();
@@ -1260,8 +1373,8 @@
       }
 
       const novoUsuario = {
-        id: "u_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        username: email,
+        id: "usr_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        username: email.split("@")[0] || email,
         nome,
         sobrenome,
         sexo,
@@ -1278,6 +1391,7 @@
         senha,
         foto: state.tempFotoCadastro || DEFAULT_AVATAR,
         role: "user",
+        is_admin: false,
         precisa_trocar_senha: false,
         reset_solicitado: false,
         criado_em: new Date().toISOString()
@@ -1670,10 +1784,6 @@
                 const targetIsAdmin = isAdmin(u);
                 const bday = getBirthdayInfo(u.data_nascimento);
 
-                // Regras de permissão:
-                // - Admin Master não pode ser excluído e só o próprio Master pode editar seu cadastro
-                // - Admin Master pode promover e rebaixar usuários
-                // - Admins promovidos podem promover usuários comuns, resetar senha, editar e excluir (exceto o Master)
                 const canModifyTarget = currIsAdmin && (!targetIsMaster || currIsMaster);
                 const canDeleteTarget = currIsAdmin && !targetIsMaster && u.id !== curr.id;
 
@@ -1698,7 +1808,6 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
-                      <!-- Ícone WhatsApp -->
                       ${whatsPhone ? `
                         <a href="https://api.whatsapp.com/send?phone=${whatsPhone}" target="_blank" rel="noopener noreferrer"
                           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition"
@@ -1707,7 +1816,6 @@
                         </a>
                       ` : ""}
 
-                      <!-- Ícone E-mail -->
                       ${u.email ? `
                         <a href="mailto:${esc(u.email)}"
                           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm transition"
@@ -1716,14 +1824,12 @@
                         </a>
                       ` : ""}
 
-                      <!-- Ícone Maps (Google Maps ou Waze) -->
                       <button type="button" onclick="openMapsSelectorModal('${esc(u.id)}')"
                         class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition"
                         title="Abrir endereço no Google Maps ou Waze">
                         <span>📍 Maps / Waze</span>
                       </button>
 
-                      <!-- Controles Administrativos -->
                       ${canModifyTarget ? `
                         <button type="button" onclick="adminResetPassword('${esc(u.id)}')"
                           class="px-2.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition"
@@ -1828,6 +1934,7 @@
         return;
       }
       target.role = newRole;
+      target.is_admin = (newRole === "admin" || newRole === "master");
       await upsertUserSupabase(target);
       showToast(
         newRole === "admin"
@@ -1990,7 +2097,6 @@
         if (f.semana && dt < sevenDaysAgo) return false;
         if (f.mes && (dt.getMonth() !== now.getMonth() || dt.getFullYear() !== now.getFullYear())) return false;
 
-        // Filtro por sexo (se apenas um estiver marcado)
         if (f.masculino && !f.feminino && p.sexo !== "Masculino") return false;
         if (f.feminino && !f.masculino && p.sexo !== "Feminino") return false;
 
@@ -2329,7 +2435,7 @@
         return;
       }
 
-      const sqlScript = `-- Execute no SQL Editor do Supabase para criar/atualizar as tabelas:
+      const sqlScript = `-- Execute no SQL Editor do Supabase para criar ou atualizar as tabelas:
 create table if not exists public.usuarios (
   id text primary key,
   username text,
@@ -2337,43 +2443,45 @@ create table if not exists public.usuarios (
   sobrenome text not null,
   sexo text not null,
   data_nascimento text,
-  telefone text,
+  telefone text not null,
   email text not null,
   cep text,
   rua text,
-  numero text,
-  complemento text,
   bairro text,
   cidade text,
   estado text,
+  numero text,
+  complemento text,
+  foto_perfil text,
   senha text not null,
-  foto text,
-  role text default 'user',
-  precisa_trocar_senha boolean default false,
-  reset_solicitado boolean default false,
-  criado_em timestamptz default now()
+  is_admin boolean default false,
+  must_change_password boolean default false,
+  reset_requested boolean default false,
+  created_at timestamptz default now()
 );
 
 alter table public.usuarios add column if not exists data_nascimento text;
 
-create table if not exists public.pedidos (
+create table if not exists public.pedidos_oracao (
   id text primary key,
   user_id text,
   nome text not null,
   sobrenome text not null,
-  sexo text,
-  texto text not null,
-  criado_em timestamptz default now()
+  sexo text not null,
+  pedido text not null,
+  created_at timestamptz default now()
 );
 
 alter table public.usuarios enable row level security;
-alter table public.pedidos enable row level security;
+alter table public.pedidos_oracao enable row level security;
 
 drop policy if exists "Acesso publico usuarios" on public.usuarios;
-create policy "Acesso publico usuarios" on public.usuarios for all to anon, authenticated using (true) with check (true);
+create policy "Acesso publico usuarios" on public.usuarios for all to public using (true) with check (true);
 
-drop policy if exists "Acesso publico pedidos" on public.pedidos;
-create policy "Acesso publico pedidos" on public.pedidos for all to anon, authenticated using (true) with check (true);`;
+drop policy if exists "Acesso publico pedidos" on public.pedidos_oracao;
+create policy "Acesso publico pedidos" on public.pedidos_oracao for all to public using (true) with check (true);
+
+NOTIFY pgrst, 'reload schema';`;
 
       openModal(`
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 fade-in max-h-[90vh] overflow-y-auto">
@@ -2391,7 +2499,7 @@ create policy "Acesso publico pedidos" on public.pedidos for all to anon, authen
             </div>
           ` : `
             <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800">
-              ✅ Credenciais do projeto conectadas e normalizadas automaticamente (sem duplicação de <code>/rest/v1</code>).
+              ✅ Conectado e sincronizado com as tabelas <code>usuarios</code> e <code>pedidos_oracao</code> do seu Supabase!
             </div>
           `}
 
@@ -2495,14 +2603,12 @@ create policy "Acesso publico pedidos" on public.pedidos for all to anon, authen
       }
     }
 
-    // Inicialização imediata (sem travar na conexão do Supabase!)
     (function initApp() {
       state.route = detectInitialRoute();
       if (PROTECTED_ROUTES.includes(state.route) && !state.currentUser) {
         state.route = "login";
       }
       renderApp();
-      // Sincroniza em segundo plano sem bloquear cliques
       syncFromSupabase(true);
     })();
   </script>
