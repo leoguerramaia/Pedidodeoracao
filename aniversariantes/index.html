@@ -1,1 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Aniversariantes do Mês — Portal de Intercessão — Pedidos de Oração</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAF8F5;
+      color: #1C1917;
+      overflow-x: hidden;
+    }
+    .font-serif-display {
+      font-family: 'Playfair Display', serif;
+    }
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+      animation: fadeIn 0.22s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F2EB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D6D3D1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8A29E;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-16 sm:pb-0 selection:bg-amber-200 selection:text-amber-950">
+<header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-stone-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-3.5 sm:px-6 py-3 flex items-center justify-between gap-2">
+      <!-- Logo / Nome do Site -->
+      <div class="flex items-center gap-2.5 cursor-pointer min-w-0" id="brandLogoBtn">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center shadow-sm text-lg font-bold flex-shrink-0">
+          🙏
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-serif-display font-bold text-base sm:text-xl text-stone-900 truncate leading-tight">Portal de Intercessão</h1>
+          <p class="text-[11px] text-stone-500 flex items-center gap-1.5 truncate">
+            <span id="dbStatusBadge" class="inline-block w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span id="dbStatusText" class="truncate">Conectando ao Supabase...</span>
+          </p>
+        </div>
+      </div>
 
+      <!-- Controles da Direita -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <!-- Botão de Configuração do Supabase (EXCLUSIVO PARA ADMINISTRADORES LOGADOS) -->
+        <button type="button" id="openSupabaseModalBtn" class="hidden px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition items-center gap-1.5" title="Configuração do Supabase (Apenas Administradores)">
+          <svg class="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          <span class="hidden md:inline">Supabase (Admin)</span>
+        </button>
+
+        <!-- Sino de Notificações de Reset de Senha (EXCLUSIVO PARA ADMINISTRADORES LOGADOS) -->
+        <button type="button" id="adminNotifBtn" class="hidden relative p-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition" title="Solicitações de Reset de Senha">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span id="adminNotifCount" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+
+        <!-- Botão de Perfil no Canto Superior Direito (Visível quando logado) -->
+        <div id="loggedUserHeader" class="hidden items-center gap-1.5 sm:gap-2">
+          <button type="button" id="topProfileBtn" class="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
+            <img id="headerUserAvatar" src="" alt="Avatar" class="w-7 h-7 rounded-full object-cover border border-amber-500 flex-shrink-0" />
+            <div class="text-left hidden sm:block max-w-[140px]">
+              <div id="headerUserName" class="text-xs font-semibold text-stone-800 truncate leading-none">Meu Perfil</div>
+              <div id="headerUserRole" class="text-[10px] text-amber-800 font-semibold mt-0.5">Membro</div>
+            </div>
+          </button>
+          <button type="button" id="logoutBtn" class="p-2 rounded-xl text-stone-500 hover:text-red-600 hover:bg-red-50 transition" title="Sair da conta">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8">
+<section id="view-birthdays" class="view-section active">
+      <div class="space-y-6">
+        <!-- Cabeçalho -->
+        <div class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 mb-2">
+              🎂 Agenda de Aniversários da Igreja
+            </div>
+            <h2 class="font-serif-display text-2xl sm:text-3xl font-bold text-stone-900">Aniversariantes da Comunidade</h2>
+            <p class="text-xs sm:text-sm text-stone-600 mt-1">Consulte os aniversariantes do mês corrente ou selecione qualquer mês do ano para parabenizar os irmãos via WhatsApp.</p>
+          </div>
+          <button type="button" data-nav-route="home" onclick="navigateToRoute('home')" class="px-4 py-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition flex items-center gap-2 self-stretch sm:self-auto justify-center">
+            <span>← Voltar ao Início</span>
+          </button>
+        </div>
+
+        <!-- Barra de Filtro de Mês -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <label for="birthdaysMonthSelect" class="text-xs sm:text-sm font-bold text-stone-800 whitespace-nowrap">Mês de Aniversário:</label>
+            <select id="birthdaysMonthSelect" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-rose-600">
+              <option value="1">Janeiro (01)</option>
+              <option value="2">Fevereiro (02)</option>
+              <option value="3">Março (03)</option>
+              <option value="4">Abril (04)</option>
+              <option value="5">Maio (05)</option>
+              <option value="6">Junho (06)</option>
+              <option value="7">Julho (07)</option>
+              <option value="8">Agosto (08)</option>
+              <option value="9">Setembro (09)</option>
+              <option value="10">Outubro (10)</option>
+              <option value="11">Novembro (11)</option>
+              <option value="12">Dezembro (12)</option>
+            </select>
+          </div>
+          <div id="birthdaysCountBadge" class="text-xs font-bold px-3.5 py-1.5 rounded-full bg-rose-100 text-rose-900">
+            Carregando aniversariantes...
+          </div>
+        </div>
+
+        <!-- Container da Lista de Aniversariantes -->
+        <div id="birthdaysListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Cards de aniversariantes renderizados dinamicamente via JS -->
+        </div>
+      </div>
+    </section>
+</main>
+<!-- ==========================================
+       MODAIS DO SISTEMA (SEM ALERT / CONFIRM NATIVOS)
+       ========================================== -->
+
+  <!-- 1. MODAL DE TROCA OBRIGATÓRIA DE SENHA (1º Login Admin ou após Reset 1234) -->
+  <div id="forcePasswordModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold">
+        🔐
+      </div>
+      <h3 class="font-serif-display text-xl font-bold text-stone-900">Alteração Obrigatória de Senha</h3>
+      <p id="forcePasswordModalDesc" class="text-xs text-stone-600 leading-relaxed">
+        Por segurança, sua senha atual é temporária (<code class="font-mono bg-stone-100 px-1 rounded">1234</code> ou <code class="font-mono bg-stone-100 px-1 rounded">admin</code>). Defina uma nova senha pessoal para continuar.
+      </p>
+      <form id="forcePasswordForm" class="space-y-4">
+        <div>
+          <label for="forceNewPass" class="block text-xs font-semibold text-stone-700 mb-1">Nova Senha Pessoal *</label>
+          <input type="password" id="forceNewPass" required placeholder="Digite sua nova senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+        </div>
+        <div>
+          <label for="forceConfirmPass" class="block text-xs font-semibold text-stone-700 mb-1">Confirmar Nova Senha *</label>
+          <input type="password" id="forceConfirmPass" required placeholder="Repita sua nova senha" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm transition">
+          Salvar Nova Senha e Continuar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MODAL ESQUECI MINHA SENHA (SOLICITA APROVAÇÃO DO ADMINISTRADOR) -->
+  <div id="forgotPasswordModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-xl font-bold text-stone-900">Solicitar Reset de Senha</h3>
+        <button type="button" id="closeForgotModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <p class="text-xs text-stone-600 leading-relaxed">
+        Informe seu e-mail cadastrado. Sua solicitação ficará pendente até a <strong>aprovação de algum Administrador</strong>. Assim que aprovada, sua senha passará a ser <code class="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-amber-900 font-bold">1234</code>, sendo obrigatória a mudança no próximo login.
+      </p>
+      <form id="forgotPasswordForm" class="space-y-4">
+        <div>
+          <label for="forgotEmailInput" class="block text-xs font-semibold text-stone-700 mb-1">Seu E-mail Cadastrado *</label>
+          <input type="email" id="forgotEmailInput" required placeholder="seu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" id="cancelForgotModalBtn" class="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Solicitar Aprovação de Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DE APROVAÇÃO DE RESET DE SENHA PELO ADMINISTRADOR -->
+  <div id="adminResetsModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-xl font-bold text-stone-900">Aprovar Solicitações de Reset</h3>
+        <button type="button" id="closeAdminResetsModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <p class="text-xs text-stone-600 leading-relaxed">
+        Ao aprovar o reset de um usuário abaixo, a senha dele será alterada para <code class="font-mono bg-stone-100 px-1.5 py-0.5 rounded font-bold text-amber-900">1234</code> e o sistema exigirá que ele crie uma nova senha pessoal no próximo login.
+      </p>
+      <div id="adminResetsListContainer" class="divide-y divide-stone-200 max-h-72 overflow-y-auto"></div>
+      <div class="flex justify-end">
+        <button type="button" id="closeAdminResetsFooterBtn" class="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MODAL DE ESCOLHA GOOGLE MAPS OU WAZE -->
+  <div id="mapsChoiceModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-lg font-bold text-stone-900">Abrir Endereço no Mapa</h3>
+        <button type="button" id="closeMapsModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
+        <div id="mapsModalPersonName" class="text-xs font-bold text-stone-900"></div>
+        <div id="mapsModalAddressText" class="text-xs text-stone-600 mt-1"></div>
+      </div>
+      <p class="text-xs text-stone-500">Escolha em qual aplicativo deseja abrir a localização:</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a id="openGoogleMapsLink" href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold text-center flex items-center justify-center gap-2 transition">
+          <span>🗺️ Google Maps</span>
+        </a>
+        <a id="openWazeLink" href="https://waze.com" target="_blank" rel="noopener noreferrer" class="py-3 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold text-center flex items-center justify-center gap-2 transition">
+          <span>🚗 Abrir no Waze</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL DE EXPORTAÇÃO ELEGANTE PARA WHATSAPP -->
+  <div id="whatsappExportModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">📲</div>
+          <div>
+            <h3 class="font-serif-display text-lg font-bold text-stone-900">Exportar Pedidos para WhatsApp</h3>
+            <p class="text-[11px] text-stone-500">Leiaute formatado com emojis e codificação limpa sem erro de caracteres</p>
+          </div>
+        </div>
+        <button type="button" id="closeWhatsappModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <div>
+        <label for="whatsappPreviewTextarea" class="block text-xs font-semibold text-stone-700 mb-1">Prévia da Mensagem Formatada:</label>
+        <textarea id="whatsappPreviewTextarea" rows="9" readonly class="w-full p-3.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs font-mono text-stone-800 leading-relaxed focus:outline-none"></textarea>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-2.5 pt-1">
+        <button type="button" id="copyWhatsappTextBtn" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-800 text-xs font-semibold transition">
+          📋 Copiar Texto Formatado
+        </button>
+        <a id="sendWhatsappDirectLink" href="https://api.whatsapp.com" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold text-center transition flex items-center justify-center gap-2">
+          <span>💬 Enviar Agora no WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL EDITAR PEDIDO DE ORAÇÃO -->
+  <div id="editPrayerModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-xl font-bold text-stone-900">Editar Pedido de Oração</h3>
+        <button type="button" id="closeEditPrayerModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <form id="editPrayerForm" class="space-y-4">
+        <input type="hidden" id="editPrayerIdInput" />
+        <div>
+          <label for="editPrayerTextarea" class="block text-xs font-semibold text-stone-700 mb-1">Pedido de Oração *</label>
+          <textarea id="editPrayerTextarea" rows="5" required class="w-full p-3.5 rounded-2xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600"></textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" id="cancelEditPrayerBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
+          <button type="submit" class="px-6 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. MODAL EDITAR USUÁRIO (ADMIN) -->
+  <div id="adminEditUserModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4 my-8">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-xl font-bold text-stone-900">Editar Usuário (Administrador)</h3>
+        <button type="button" id="closeAdminEditUserModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <form id="adminEditUserForm" class="space-y-3">
+        <input type="hidden" id="adminEditUserId" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="adminEditNome" class="block text-xs font-semibold text-stone-700 mb-1">Nome *</label>
+            <input type="text" id="adminEditNome" required class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+          <div>
+            <label for="adminEditSobrenome" class="block text-xs font-semibold text-stone-700 mb-1">Sobrenome *</label>
+            <input type="text" id="adminEditSobrenome" required class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="adminEditSexo" class="block text-xs font-semibold text-stone-700 mb-1">Sexo *</label>
+            <select id="adminEditSexo" required class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm bg-white">
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+            </select>
+          </div>
+          <div>
+            <label for="adminEditDataNascimento" class="block text-xs font-semibold text-stone-700 mb-1">Data de Nascimento</label>
+            <input type="date" id="adminEditDataNascimento" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm bg-white" />
+          </div>
+          <div>
+            <label for="adminEditTelefone" class="block text-xs font-semibold text-stone-700 mb-1">Telefone *</label>
+            <input type="text" id="adminEditTelefone" required class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label for="adminEditEmail" class="block text-xs font-semibold text-stone-700 mb-1">E-mail *</label>
+          <input type="email" id="adminEditEmail" required class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="adminEditCep" class="block text-xs font-semibold text-stone-700 mb-1">CEP</label>
+            <input type="text" id="adminEditCep" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="adminEditRua" class="block text-xs font-semibold text-stone-700 mb-1">Rua</label>
+            <input type="text" id="adminEditRua" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div>
+            <label for="adminEditNumero" class="block text-xs font-semibold text-stone-700 mb-1">Nº</label>
+            <input type="text" id="adminEditNumero" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+          <div>
+            <label for="adminEditBairro" class="block text-xs font-semibold text-stone-700 mb-1">Bairro</label>
+            <input type="text" id="adminEditBairro" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+          <div>
+            <label for="adminEditCidade" class="block text-xs font-semibold text-stone-700 mb-1">Cidade</label>
+            <input type="text" id="adminEditCidade" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm" />
+          </div>
+          <div>
+            <label for="adminEditEstado" class="block text-xs font-semibold text-stone-700 mb-1">UF</label>
+            <input type="text" id="adminEditEstado" maxlength="2" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm uppercase" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" id="cancelAdminEditUserBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
+          <button type="submit" class="px-6 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">Salvar Usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. MODAL DE CONFIRMAÇÃO DE AÇÃO / EXCLUSÃO / RESET -->
+  <div id="confirmDeleteModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-stone-200 space-y-4">
+      <h3 id="confirmDeleteTitle" class="font-serif-display text-lg font-bold text-stone-900">Confirmar Ação</h3>
+      <p id="confirmDeleteDesc" class="text-xs text-stone-600 leading-relaxed">Tem certeza que deseja prosseguir?</p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" id="cancelDeleteModalBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
+        <button type="button" id="confirmDeleteActionBtn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. MODAL DE WEBCAM -->
+  <div id="webcamModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-display text-lg font-bold text-stone-900">Tirar Foto de Perfil</h3>
+        <button type="button" id="closeWebcamModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <div class="rounded-2xl overflow-hidden bg-stone-900 aspect-square flex items-center justify-center relative">
+        <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+        <canvas id="webcamCanvas" width="320" height="320" class="hidden"></canvas>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="cancelWebcamBtn" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700">Cancelar</button>
+        <button type="button" id="captureWebcamBtn" class="px-5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold">📸 Capturar Foto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. MODAL DE CONFIGURAÇÃO DO SUPABASE (EXCLUSIVO PARA ADMINISTRADORES) -->
+  <div id="supabaseConfigModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-4 my-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 uppercase">Área Restrita do Administrador</span>
+          <h3 class="font-serif-display text-xl font-bold text-stone-900 mt-1">Conexão Supabase &amp; Banco de Dados Online</h3>
+          <p class="text-xs text-stone-500 mt-0.5">As credenciais oficiais do projeto já estão incluídas no código e normalizadas automaticamente.</p>
+        </div>
+        <button type="button" id="closeSupabaseModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Diagnóstico em Tempo Real do Supabase -->
+      <div id="supabaseDiagBox" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
+        <div id="supabaseDiagTitle" class="font-bold text-emerald-900">✅ Credenciais Nativas Carregadas no Código</div>
+        <div id="supabaseDiagDetails" class="text-emerald-800 leading-relaxed">
+          Conectado ao projeto <code>muocgmrzqmzlqsfcwwjv.supabase.co</code> (o sufixo <code>/rest/v1/</code> é tratado automaticamente para evitar o erro PGRST125).
+        </div>
+      </div>
+
+      <form id="supabaseConfigForm" class="space-y-3 bg-stone-50 p-4 rounded-2xl border border-stone-200">
+        <div>
+          <label for="sbUrlInput" class="block text-xs font-semibold text-stone-700 mb-1">Supabase Project URL (Remove automaticamente /rest/v1/ se informado)</label>
+          <input type="url" id="sbUrlInput" placeholder="https://muocgmrzqmzlqsfcwwjv.supabase.co" class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-mono bg-white" />
+        </div>
+        <div>
+          <label for="sbKeyInput" class="block text-xs font-semibold text-stone-700 mb-1">Supabase Anon Public Key</label>
+          <input type="text" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-mono bg-white" />
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <button type="button" id="resetDefaultSupabaseBtn" class="text-xs text-amber-800 hover:underline font-semibold">Restaurar Credenciais Padrão do Código</button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="syncNowSupabaseBtn" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold transition">🔄 Testar e Sincronizar Agora</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">Salvar e Conectar</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-stone-800">Script SQL das Tabelas (Execute no SQL Editor do Supabase caso ainda não tenha criado):</span>
+          <button type="button" id="copySqlSchemaBtn" class="px-3 py-1 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold">Copiar SQL</button>
+        </div>
+        <pre id="sqlSchemaBlock" class="p-3.5 rounded-2xl bg-stone-900 text-stone-100 text-[11px] font-mono overflow-x-auto max-h-44 leading-relaxed">-- No painel do Supabase, abra "SQL Editor" -> "New Query", cole tudo abaixo e clique em "Run":
+create table if not exists public.usuarios (
+  id text primary key,
+  username text,
+  nome text not null,
+  sobrenome text not null,
+  sexo text not null,
+  telefone text not null,
+  email text not null,
+  cep text,
+  rua text,
+  bairro text,
+  cidade text,
+  estado text,
+  numero text,
+  complemento text,
+  foto_perfil text,
+  senha text not null,
+  is_admin boolean default false,
+  must_change_password boolean default false,
+  reset_requested boolean default false,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.pedidos_oracao (
+  id text primary key,
+  user_id text,
+  nome text not null,
+  sobrenome text not null,
+  sexo text not null,
+  pedido text not null,
+  created_at timestamptz default now()
+);
+
+alter table public.pedidos_oracao drop constraint if exists pedidos_oracao_user_id_fkey;
+alter table public.usuarios drop constraint if exists usuarios_username_key;
+
+alter table public.usuarios enable row level security;
+alter table public.pedidos_oracao enable row level security;
+
+drop policy if exists "Acesso publico usuarios" on public.usuarios;
+create policy "Acesso publico usuarios" on public.usuarios for all to public using (true) with check (true);
+
+drop policy if exists "Acesso publico pedidos" on public.pedidos_oracao;
+create policy "Acesso publico pedidos" on public.pedidos_oracao for all to public using (true) with check (true);
+
+grant usage on schema public to anon, authenticated;
+grant all on table public.usuarios to anon, authenticated, service_role;
+grant all on table public.pedidos_oracao to anon, authenticated, service_role;</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER DE NOTIFICAÇÕES TOAST -->
+  <div id="toastContainer" class="fixed bottom-16 sm:bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <footer class="border-t border-stone-200 bg-white py-5 mt-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500 text-center sm:text-left">
+      <div>Portal de Intercessão — Sincronizado com Supabase &amp; GitHub Pages</div>
+      <div>Aniversariantes do Mês • ViaCEP, WhatsApp, Google Maps &amp; Waze</div>
+    </div>
+  </footer>
+  <script>window.PORTAL_PAGE_MODE = "aniversariantes";</script>
+  <script src="../assets/app.js"></script>
+</body>
+</html>
