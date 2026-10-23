@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Registrar Pedido de Oração — Portal de Intercessão</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-16 sm:pb-0 selection:bg-amber-200 selection:text-amber-950">
+
+  <!-- CABEÇALHO SUPERIOR -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-stone-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-3.5 sm:px-6 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 cursor-pointer min-w-0" id="brandLogoBtn">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center shadow-sm text-lg font-bold flex-shrink-0">
+          🙏
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-serif-display font-bold text-base sm:text-xl text-stone-900 truncate leading-tight">Portal de Intercessão</h1>
+          <p class="text-[11px] text-stone-500 flex items-center gap-1.5 truncate">
+            <span id="dbStatusBadge" class="inline-block w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span id="dbStatusText" class="truncate">Conectando ao Supabase...</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <!-- Botão de Configuração do Supabase (EXCLUSIVO PARA ADMINISTRADORES LOGADOS) -->
+        <button type="button" id="openSupabaseModalBtn" class="hidden px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition items-center gap-1.5" title="Configuração do Supabase (Apenas Administradores)">
+          <svg class="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          <span class="hidden md:inline">Supabase (Admin)</span>
+        </button>
+
+        <!-- Sino de Notificações de Reset de Senha (EXCLUSIVO PARA ADMINISTRADORES) -->
+        <button type="button" id="adminNotifBtn" class="hidden relative p-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition" title="Solicitações de Reset de Senha">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span id="adminNotifCount" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+
+        <!-- Perfil do Usuário Logado -->
+        <div id="loggedUserHeader" class="hidden items-center gap-1.5 sm:gap-2">
+          <button type="button" id="topProfileBtn" class="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
+            <img id="headerUserAvatar" src="" alt="Avatar" class="w-7 h-7 rounded-full object-cover border border-amber-500 flex-shrink-0" />
+            <div class="text-left hidden sm:block max-w-[140px]">
+              <div id="headerUserName" class="text-xs font-semibold text-stone-800 truncate leading-none">Meu Perfil</div>
+              <div id="headerUserRole" class="text-[10px] text-amber-800 font-semibold mt-0.5">Membro</div>
+            </div>
+          </button>
+          <button type="button" id="logoutBtn" class="p-2 rounded-xl text-stone-500 hover:text-red-600 hover:bg-red-50 transition" title="Sair da conta">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO DA PÁGINA (pedidooracao) -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8">
+    <!-- ==========================================
+         ROTA 6: REGISTRAR PEDIDO DE ORAÇÃO (/pedidooracao)
+         https://leoguerramaia.github.io/Pedidodeoracao/pedidooracao
+         ========================================== -->
+    <section id="view-new-prayer" class="view-section active">
+      <div class="max-w-2xl mx-auto bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-stone-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-800">Membro Cadastrado</span>
+            <h2 class="font-serif-display text-xl sm:text-2xl font-bold text-stone-900">Registrar Pedido de Oração</h2>
+            <p class="text-xs text-stone-500 mt-0.5">Seu nome, sobrenome, data e hora serão gravados automaticamente junto ao pedido.</p>
+          </div>
+          <button type="button" data-nav-route="home" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-700 transition">
+            ← Voltar ao Painel
+          </button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 mb-5 flex items-center justify-between flex-wrap gap-2 text-xs text-amber-950">
+          <div>
+            <span class="font-semibold">Autor(a) do Pedido:</span>
+            <span id="newPrayerAuthorName" class="ml-1 font-bold"></span>
+          </div>
+          <div>
+            <span class="font-semibold">Data e Hora do Registro:</span>
+            <span id="newPrayerTimestampPreview" class="ml-1 font-mono">Agora</span>
+          </div>
+        </div>
+
+        <form id="newPrayerForm" class="space-y-4">
+          <div>
+            <label for="prayerTextInput" class="block text-xs font-semibold text-stone-700 mb-2">Descreva seu Pedido de Oração *</label>
+            <textarea id="prayerTextInput" rows="6" required placeholder="Escreva aqui seu pedido de oração pela família, saúde, gratidão, direção espiritual..." class="w-full p-4 rounded-2xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 leading-relaxed"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" data-nav-route="home" class="px-5 py-3 rounded-xl border border-stone-300 text-stone-700 text-xs font-semibold hover:bg-stone-100 transition">
+              Cancelar
+            </button>
+            <button type="submit" class="px-7 py-3.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm shadow-sm transition flex items-center gap-2">
+              <span>🙏 Salvar Pedido de Oração</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- NAVEGAÇÃO MOBILE INFERIOR -->
+  <nav id="mobileBottomNav" class="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur border-t border-stone-200 px-2 py-1.5 grid grid-cols-4 gap-1 shadow-lg">
+    <button type="button" data-nav-route="home" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">🏠</span>
+      <span class="text-[10px] font-semibold mt-1">Início</span>
+    </button>
+    <button type="button" data-nav-route="contatos" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">👥</span>
+      <span class="text-[10px] font-semibold mt-1">Contatos</span>
+    </button>
+    <button type="button" id="mobileNewPrayerNavBtn" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">🙏</span>
+      <span class="text-[10px] font-semibold mt-1">Pedir Oração</span>
+    </button>
+    <button type="button" data-nav-route="acompanharpedidos" class="flex flex-col items-center justify-center py-1 rounded-xl text-stone-600 hover:text-amber-800 hover:bg-amber-50/60 transition">
+      <span class="text-base leading-none">📋</span>
+      <span class="text-[10px] font-semibold mt-1">Mural</span>
+    </button>
+  </nav>
+
+  <!-- RODAPÉ -->
+  <footer class="border-t border-stone-200 bg-white py-5 mt-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500 text-center sm:text-left">
+      <div>Portal de Intercessão — Sincronizado com Supabase &amp; GitHub Pages</div>
+      <div>Compatível com Celular e Computador • ViaCEP, WhatsApp, Google Maps &amp; Waze</div>
+    </div>
+  </footer>
+
+  <script>window.PORTAL_PAGE_MODE = 'pedidooracao';</script>
+  <script src="../assets/app.js"></script>
+</body>
+</html>
 
